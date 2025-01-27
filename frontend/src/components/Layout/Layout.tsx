@@ -151,15 +151,18 @@ export function Layout({ children }: Props) {
               mr: 2,
               display: { sm: 'none' },
               color: 'white',
+              backgroundColor: '#4EBAEC',
               '& .MuiSvgIcon-root': {
-                fontSize: '2.5rem',
+                fontSize: '2rem',
                 transition: 'transform 0.3s ease',
                 transform: mobileOpen ? 'rotate(90deg)' : 'rotate(0deg)',
               },
               '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                backgroundColor: '#2196F3',
               },
-              padding: 1.5,
+              padding: 1.2,
+              borderRadius: '12px',
+              boxShadow: '0 4px 12px rgba(78, 186, 236, 0.2)',
             }}
           >
             <MenuIcon />
@@ -198,20 +201,21 @@ export function Layout({ children }: Props) {
               boxSizing: 'border-box',
               width: drawerWidth,
               backgroundColor: 'white',
-              borderRight: '1px solid #e2e8f0',
-              borderRadius: '0 32px 32px 0',
-              boxShadow: '8px 0 32px rgba(0,0,0,0.1)',
+              borderRight: 'none',
+              borderRadius: '0 24px 24px 0',
+              boxShadow: '4px 0 24px rgba(0, 0, 0, 0.1)',
             },
           }}
         >
-          <Toolbar
+          <Box
             sx={{
-              borderBottom: '1px solid rgba(78, 186, 236, 0.1)',
               background: 'linear-gradient(135deg, #4EBAEC 0%, #2196F3 100%)',
+              p: 2,
+              borderRadius: '0 24px 0 0',
               display: 'flex',
+              alignItems: 'center',
               justifyContent: 'space-between',
-              minHeight: '80px !important',
-              borderRadius: '0 32px 0 0',
+              mb: 1,
             }}
           >
             <Typography
@@ -219,8 +223,8 @@ export function Layout({ children }: Props) {
               sx={{
                 color: 'white',
                 fontWeight: 600,
-                fontSize: '1.5rem',
-                textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                fontSize: '1.3rem',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
               }}
             >
               Admin RDV
@@ -232,16 +236,76 @@ export function Layout({ children }: Props) {
                 '&:hover': {
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
                 },
-                '& .MuiSvgIcon-root': {
-                  transition: 'transform 0.3s ease',
-                  transform: 'rotate(90deg)',
-                },
               }}
             >
               <MenuIcon />
             </IconButton>
-          </Toolbar>
-          {drawer}
+          </Box>
+          <List sx={{ px: 2 }}>
+            {menuItems.map((item, index) => (
+              <motion.div
+                key={item.text}
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <ListItem disablePadding sx={{ mb: 1 }}>
+                  <ListItemButton
+                    onClick={() => {
+                      navigate(item.path);
+                      handleDrawerToggle();
+                    }}
+                    sx={{
+                      backgroundColor: location.pathname === item.path
+                        ? 'rgba(78, 186, 236, 0.1)'
+                        : 'transparent',
+                      borderRadius: '12px',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        backgroundColor: 'rgba(78, 186, 236, 0.15)',
+                        transform: 'translateX(4px)',
+                      },
+                      height: '56px',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      '&::before': location.pathname === item.path ? {
+                        content: '""',
+                        position: 'absolute',
+                        left: 0,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        width: '4px',
+                        height: '60%',
+                        backgroundColor: '#4EBAEC',
+                        borderRadius: '0 4px 4px 0',
+                      } : {},
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        color: location.pathname === item.path ? '#4EBAEC' : '#666',
+                        minWidth: 40,
+                        '& .MuiSvgIcon-root': {
+                          fontSize: '1.5rem',
+                          transition: 'transform 0.2s ease',
+                        },
+                      }}
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={item.text}
+                      primaryTypographyProps={{
+                        fontSize: '1rem',
+                        fontWeight: location.pathname === item.path ? 600 : 400,
+                        color: location.pathname === item.path ? '#4EBAEC' : '#333',
+                      }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              </motion.div>
+            ))}
+          </List>
         </Drawer>
         <Drawer
           variant="permanent"
