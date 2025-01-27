@@ -16,7 +16,6 @@ import {
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { Appointment, AppointmentType, ProfileType } from '../types/appointment';
-import { generateGoogleMeetLink } from '../utils/googleMeet';
 
 interface AppointmentFormProps {
   onSubmit: (data: Omit<Appointment, 'id'>) => void;
@@ -36,38 +35,22 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
     location: initialData?.location || '',
     meetLink: initialData?.meetLink || '',
     notes: initialData?.notes || '',
-    profile: initialData?.profile || 'prospect'
+    profile: initialData?.profile || 'prospect',
+    status: initialData?.status || 'pending'
   });
-
-  // Générer un lien Meet une seule fois quand le type change à "video"
-  React.useEffect(() => {
-    if (formData.type === 'video' && !formData.meetLink) {
-      const meetLink = `https://meet.google.com/${Math.random().toString(36).substring(2, 12)}`;
-      setFormData(prev => ({
-        ...prev,
-        meetLink
-      }));
-    }
-  }, [formData.type]);
 
   const handleChange = (name: keyof Omit<Appointment, 'id'>) => (
     event: React.ChangeEvent<HTMLInputElement | { value: unknown }> | SelectChangeEvent
   ) => {
     if (name === 'type') {
-      if (event.target.value === 'video') {
-        // Ne pas changer le meetLink s'il existe déjà
-        setFormData(prev => ({
-          ...prev,
-          [name]: event.target.value,
-          meetLink: prev.meetLink || `https://meet.google.com/${Math.random().toString(36).substring(2, 12)}`
-        }));
-      } else {
-        setFormData(prev => ({
-          ...prev,
-          [name]: event.target.value,
-          meetLink: '' // Effacer le lien si ce n'est pas une visio
-        }));
-      }
+      const newType = event.target.value as AppointmentType;
+      setFormData(prev => ({
+        ...prev,
+        type: newType,
+        meetLink: newType === 'video' 
+          ? (prev.meetLink || `https://meet.google.com/${Math.random().toString(36).substring(2, 12)}`)
+          : ''
+      }));
     } else {
       setFormData(prev => ({
         ...prev,
@@ -80,7 +63,7 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
     if (newDate) {
       setFormData(prev => ({
         ...prev,
-        date: newDate.toISOString(),
+        date: newDate.toISOString()
       }));
     }
   };

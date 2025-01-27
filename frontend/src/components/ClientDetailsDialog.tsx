@@ -10,7 +10,7 @@ import {
   Stack,
   Chip,
 } from '@mui/material';
-import { Client, ProfileType } from '../types';
+import { Client, ProfileType } from '../types/appointment';
 import { useApp } from '../context/AppContext';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
