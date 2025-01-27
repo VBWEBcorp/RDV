@@ -10,7 +10,7 @@ import {
   Stack,
   Chip,
 } from '@mui/material';
-import { Client } from '../types';
+import { Client, ProfileType } from '../types';
 import { useApp } from '../context/AppContext';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -31,7 +31,7 @@ export function ClientDetailsDialog({ client, appointment, open, onClose }: Clie
   // Calculer les statistiques des rendez-vous
   const clientStats = React.useMemo(() => {
     const clientAppointments = appointments.filter(
-      apt => apt.nom === client.nom && apt.prenom === client.prenom
+      apt => apt.nom === client.nom && apt.prenom === client.prenom && apt.email === client.email
     );
     
     const lastAppointment = clientAppointments.length > 0
@@ -46,7 +46,7 @@ export function ClientDetailsDialog({ client, appointment, open, onClose }: Clie
     };
   }, [appointments, client]);
 
-  const getProfileIcon = (profile: string) => {
+  const getProfileIcon = (profile: ProfileType): { icon: string; label: string } => {
     switch (profile) {
       case 'lead':
         return { icon: '🎯', label: 'Lead' };

@@ -12,10 +12,11 @@ import {
   Select,
   MenuItem,
   Typography,
-  Divider
+  Divider,
+  SelectChangeEvent
 } from '@mui/material';
 import { useApp } from '../context/AppContext';
-import { Appointment } from '../types';
+import { Appointment, ProfileType } from '../types/appointment';
 
 interface CompteRenduDialogProps {
   appointment: Appointment;
@@ -26,7 +27,7 @@ interface CompteRenduDialogProps {
 export function CompteRenduDialog({ appointment, open, onClose }: CompteRenduDialogProps) {
   const { updateAppointment } = useApp();
   const [compteRendu, setCompteRendu] = React.useState(appointment.compteRendu || '');
-  const [profile, setProfile] = React.useState(appointment.profile || 'prospect');
+  const [profile, setProfile] = React.useState<ProfileType>(appointment.profile);
 
   const handleSave = () => {
     updateAppointment(appointment.id, {
@@ -37,7 +38,11 @@ export function CompteRenduDialog({ appointment, open, onClose }: CompteRenduDia
     onClose();
   };
 
-  const getProfileIcon = (profileType: string) => {
+  const handleProfileChange = (event: SelectChangeEvent<ProfileType>) => {
+    setProfile(event.target.value as ProfileType);
+  };
+
+  const getProfileIcon = (profileType: ProfileType) => {
     switch (profileType) {
       case 'lead':
         return '🎯';
@@ -66,7 +71,7 @@ export function CompteRenduDialog({ appointment, open, onClose }: CompteRenduDia
             <InputLabel>Profil</InputLabel>
             <Select
               value={profile}
-              onChange={(e) => setProfile(e.target.value)}
+              onChange={handleProfileChange}
               label="Profil"
               sx={{
                 '& .MuiSelect-select': {
