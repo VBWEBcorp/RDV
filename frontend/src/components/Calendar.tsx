@@ -1,8 +1,9 @@
 import React from 'react';
-import { Box, Typography, Stack, Chip, Paper } from '@mui/material';
-import { format, eachDayOfInterval, startOfWeek, endOfWeek, isSameDay, isToday } from 'date-fns';
+import { Box, Typography, Stack, Chip, Paper, IconButton } from '@mui/material';
+import { format, eachDayOfInterval, startOfWeek, endOfWeek, isSameDay, isToday, addWeeks, subWeeks } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Appointment } from '../types';
+import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 
 interface CalendarProps {
   appointments: Appointment[];
@@ -10,10 +11,18 @@ interface CalendarProps {
 }
 
 export function Calendar({ appointments, onSelectEvent }: CalendarProps) {
-  const today = new Date();
-  const weekStart = startOfWeek(today, { locale: fr });
-  const weekEnd = endOfWeek(today, { locale: fr });
+  const [currentDate, setCurrentDate] = React.useState(new Date());
+  const weekStart = startOfWeek(currentDate, { locale: fr });
+  const weekEnd = endOfWeek(currentDate, { locale: fr });
   const daysOfWeek = eachDayOfInterval({ start: weekStart, end: weekEnd });
+
+  const handlePreviousWeek = () => {
+    setCurrentDate(prevDate => subWeeks(prevDate, 1));
+  };
+
+  const handleNextWeek = () => {
+    setCurrentDate(prevDate => addWeeks(prevDate, 1));
+  };
 
   const getAppointmentsForDay = (date: Date) => {
     return appointments.filter(apt => isSameDay(new Date(apt.date), date));
@@ -34,6 +43,47 @@ export function Calendar({ appointments, onSelectEvent }: CalendarProps) {
 
   return (
     <Box sx={{ width: '100%' }}>
+      <Stack 
+        direction="row" 
+        spacing={2} 
+        alignItems="center" 
+        justifyContent="space-between"
+        sx={{ mb: 2 }}
+      >
+        <IconButton 
+          onClick={handlePreviousWeek}
+          sx={{ 
+            color: '#4EBAEC',
+            '&:hover': {
+              backgroundColor: 'rgba(78,186,236,0.1)',
+            }
+          }}
+        >
+          <ChevronLeft />
+        </IconButton>
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            color: '#4EBAEC',
+            fontWeight: 600,
+            fontSize: { xs: '1rem', sm: '1.25rem' }
+          }}
+        >
+          {format(weekStart, 'd MMMM', { locale: fr })} - {format(weekEnd, 'd MMMM yyyy', { locale: fr })}
+        </Typography>
+        <IconButton 
+          onClick={handleNextWeek}
+          sx={{ 
+            color: '#4EBAEC',
+            '&:hover': {
+              backgroundColor: 'rgba(78,186,236,0.1)',
+            }
+          }}
+        >
+          <ChevronRight />
+        </IconButton>
+      </Stack>
+
       <Stack spacing={2}>
         {daysOfWeek.map((day) => (
           <Paper
@@ -45,7 +95,7 @@ export function Calendar({ appointments, onSelectEvent }: CalendarProps) {
                 ? 'linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%)'
                 : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
               borderRadius: 2,
-              border: isToday(day) ? '2px solid #2196f3' : '1px solid rgba(0,0,0,0.08)',
+              border: isToday(day) ? '2px solid #4EBAEC' : '1px solid rgba(0,0,0,0.08)',
               position: 'relative',
             }}
           >
@@ -54,7 +104,7 @@ export function Calendar({ appointments, onSelectEvent }: CalendarProps) {
               sx={{
                 mb: 2,
                 fontWeight: isToday(day) ? 600 : 500,
-                color: isToday(day) ? '#2196f3' : 'text.primary',
+                color: isToday(day) ? '#4EBAEC' : 'text.primary',
                 fontSize: { xs: '1rem', sm: '1.25rem' },
                 wordBreak: 'break-word'
               }}

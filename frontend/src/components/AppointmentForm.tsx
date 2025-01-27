@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { Appointment } from '../types';
+import { generateGoogleMeetLink } from '../utils/googleMeet';
 
 interface AppointmentFormProps {
   onSubmit: (data: Omit<Appointment, 'id'>) => void;
@@ -34,15 +35,46 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
     location: initialData?.location || '',
     meetLink: initialData?.meetLink || '',
     notes: initialData?.notes || '',
+    profile: initialData?.profile || 'prospect'
   });
+
+  // Générer un lien Meet une seule fois quand le type change à "video"
+  React.useEffect(() => {
+    if (formData.type === 'video' && !formData.meetLink) {
+      const meetLink = `https://meet.google.com/${Math.random().toString(36).substring(2, 12)}`;
+      setFormData(prev => ({
+        ...prev,
+        meetLink
+      }));
+    }
+  }, [formData.type]);
 
   const handleChange = (field: keyof Omit<Appointment, 'id'>) => (
     event: React.ChangeEvent<HTMLInputElement | { value: unknown }>
   ) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: event.target.value,
-    }));
+    const value = event.target.value;
+    
+    if (field === 'type') {
+      if (value === 'video') {
+        // Ne pas changer le meetLink s'il existe déjà
+        setFormData(prev => ({
+          ...prev,
+          [field]: value,
+          meetLink: prev.meetLink || `https://meet.google.com/${Math.random().toString(36).substring(2, 12)}`
+        }));
+      } else {
+        setFormData(prev => ({
+          ...prev,
+          [field]: value,
+          meetLink: '' // Effacer le lien si ce n'est pas une visio
+        }));
+      }
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
   };
 
   const handleDateChange = (newDate: Date | null) => {
@@ -199,25 +231,71 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
               />
             </Grid>
             <Grid item xs={12}>
-              <FormControl fullWidth required>
-                <InputLabel sx={{ color: '#2196f3' }}>Type de rendez-vous</InputLabel>
-                <Select
-                  value={formData.type}
-                  label="Type de rendez-vous"
-                  onChange={handleChange('type')}
-                  sx={{
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#2196f3',
-                      borderWidth: 2,
-                    },
-                  }}
-                >
-                  <MenuItem value="physical">Rendez-vous physique</MenuItem>
-                  <MenuItem value="phone">Appel téléphonique</MenuItem>
-                  <MenuItem value="video">Visioconférence</MenuItem>
-                </Select>
-              </FormControl>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                <FormControl fullWidth>
+                  <InputLabel>Type de rendez-vous</InputLabel>
+                  <Select
+                    value={formData.type}
+                    onChange={handleChange('type')}
+                    label="Type de rendez-vous"
+                  >
+                    <MenuItem value="physical">Physique</MenuItem>
+                    <MenuItem value="phone">Téléphone</MenuItem>
+                    <MenuItem value="video">Visioconférence</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <FormControl fullWidth>
+                  <InputLabel>Profil</InputLabel>
+                  <Select
+                    value={formData.profile}
+                    onChange={handleChange('profile')}
+                    label="Profil"
+                    sx={{
+                      '& .MuiSelect-select': {
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1
+                      }
+                    }}
+                  >
+                    <MenuItem value="lead" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      🎯 Lead
+                    </MenuItem>
+                    <MenuItem value="prospect" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      🌱 Prospect
+                    </MenuItem>
+                    <MenuItem value="client" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      ⭐ Client
+                    </MenuItem>
+                    <MenuItem value="staff" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      👥 Staff
+                    </MenuItem>
+                    <MenuItem value="partenaire" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      🤝 Partenaire
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+              </Stack>
             </Grid>
+            {formData.type === 'video' && (
+              <Grid item xs={12}>
+                <TextField
+                  label="Lien de visioconférence"
+                  value={formData.meetLink}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  fullWidth
+                  sx={{
+                    '& .MuiInputBase-input': {
+                      color: '#4EBAEC',
+                      cursor: 'pointer',
+                    }
+                  }}
+                />
+              </Grid>
+            )}
             {formData.type === 'physical' && (
               <Grid item xs={12}>
                 <TextField
@@ -225,34 +303,6 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
                   value={formData.location}
                   onChange={handleChange('location')}
                   fullWidth
-                  required
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#2196f3',
-                        borderWidth: 2,
-                      },
-                    },
-                  }}
-                />
-              </Grid>
-            )}
-            {formData.type === 'video' && (
-              <Grid item xs={12}>
-                <TextField
-                  label="Lien de visioconférence"
-                  value={formData.meetLink}
-                  onChange={handleChange('meetLink')}
-                  fullWidth
-                  required
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#2196f3',
-                        borderWidth: 2,
-                      },
-                    },
-                  }}
                 />
               </Grid>
             )}

@@ -1,102 +1,107 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
-  AppBar,
   Box,
   Drawer,
-  IconButton,
   List,
   ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
-  Toolbar,
-  Typography,
+  IconButton,
   useTheme,
   useMediaQuery,
+  Typography,
+  Divider,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
   CalendarMonth as CalendarIcon,
   History as HistoryIcon,
   People as PeopleIcon,
+  BarChart as StatsIcon,
 } from '@mui/icons-material';
-import { useNavigate, useLocation } from 'react-router-dom';
 
 const drawerWidth = 240;
 
 export function Navigation() {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const navigate = useNavigate();
   const location = useLocation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
   const menuItems = [
-    { text: 'Agenda', icon: <CalendarIcon />, path: '/' },
-    { text: 'Historique', icon: <HistoryIcon />, path: '/historique' },
-    { text: 'CRM', icon: <PeopleIcon />, path: '/crm' },
+    { path: '/', label: 'Rendez-vous', icon: <CalendarIcon /> },
+    { path: '/historique', label: 'Historique', icon: <HistoryIcon /> },
+    { path: '/crm', label: 'CRM', icon: <PeopleIcon /> },
+    { path: '/statistiques', label: 'Statistiques', icon: <StatsIcon /> },
   ];
 
   const drawer = (
-    <Box sx={{ 
-      height: '100%',
-      background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
-    }}>
-      <Box sx={{ 
-        p: 2, 
-        display: 'flex', 
-        alignItems: 'center',
-        borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
-        background: 'linear-gradient(45deg, #2196f3 30%, #90caf9 90%)',
-      }}>
-        <Typography 
-          variant="h6" 
-          sx={{ 
-            color: 'white',
-            fontWeight: 600,
-            textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    <Box sx={{ overflow: 'auto' }}>
+      <Box
+        sx={{
+          p: 3,
+          textAlign: 'center',
+          borderBottom: '1px solid #e2e8f0',
+        }}
+      >
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 700,
+            background: 'linear-gradient(45deg, #4EBAEC 30%, #7CCBF1 90%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
           }}
         >
-          Admin RDV
+          ADMIN VBWEB
         </Typography>
       </Box>
-      <List sx={{ p: 2 }}>
-        {menuItems.map((item) => (
-          <ListItem
-            button
-            key={item.text}
-            onClick={() => {
-              navigate(item.path);
-              if (isMobile) setMobileOpen(false);
-            }}
-            sx={{
-              mb: 1,
-              borderRadius: 2,
-              backgroundColor: location.pathname === item.path ? 'rgba(33, 150, 243, 0.08)' : 'transparent',
-              color: location.pathname === item.path ? '#2196f3' : 'text.primary',
-              '&:hover': {
-                backgroundColor: 'rgba(33, 150, 243, 0.12)',
-              },
-              transition: 'all 0.2s ease-in-out',
-            }}
-          >
-            <ListItemIcon sx={{ 
-              color: location.pathname === item.path ? '#2196f3' : 'text.primary',
-              minWidth: 40,
-            }}>
-              {item.icon}
-            </ListItemIcon>
-            <ListItemText 
-              primary={item.text} 
-              primaryTypographyProps={{
-                sx: { 
-                  fontWeight: location.pathname === item.path ? 600 : 400,
-                }
+      <List>
+        {menuItems.map(({ path, label, icon }) => (
+          <ListItem key={path} disablePadding>
+            <ListItemButton
+              component={Link}
+              to={path}
+              selected={location.pathname === path}
+              sx={{
+                '&.Mui-selected': {
+                  backgroundColor: 'rgba(78,186,236,0.1)',
+                  color: '#4EBAEC',
+                  '&:hover': {
+                    backgroundColor: 'rgba(78,186,236,0.2)',
+                  },
+                  '& .MuiListItemIcon-root': {
+                    color: '#4EBAEC',
+                  },
+                },
+                '&:hover': {
+                  backgroundColor: 'rgba(0,0,0,0.04)',
+                },
               }}
-            />
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 40,
+                  color: location.pathname === path ? '#4EBAEC' : 'inherit',
+                }}
+              >
+                {icon}
+              </ListItemIcon>
+              <ListItemText 
+                primary={label}
+                sx={{
+                  '& .MuiTypography-root': {
+                    fontWeight: location.pathname === path ? 600 : 400,
+                  },
+                }}
+              />
+            </ListItemButton>
           </ListItem>
         ))}
       </List>
@@ -105,43 +110,32 @@ export function Navigation() {
 
   return (
     <>
-      <AppBar
-        position="fixed"
+      <IconButton
+        color="inherit"
+        aria-label="open drawer"
+        edge="start"
+        onClick={handleDrawerToggle}
         sx={{
-          display: { md: 'none' },
-          backgroundColor: 'white',
-          boxShadow: '0 2px 12px 0 rgba(0,0,0,0.05)',
+          position: 'fixed',
+          top: 16,
+          left: 16,
+          zIndex: 1200,
+          backgroundColor: '#fff',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          '&:hover': {
+            backgroundColor: '#f8fafc',
+          },
+          display: { sm: 'none' },
         }}
       >
-        <Toolbar>
-          <IconButton
-            color="primary"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              background: 'linear-gradient(45deg, #2196f3 30%, #90caf9 90%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              fontWeight: 600,
-            }}
-          >
-            Admin RDV
-          </Typography>
-        </Toolbar>
-      </AppBar>
+        <MenuIcon />
+      </IconButton>
 
       <Box
         component="nav"
         sx={{
-          width: { md: drawerWidth },
-          flexShrink: { md: 0 },
+          width: { sm: drawerWidth },
+          flexShrink: { sm: 0 },
         }}
       >
         {/* Mobile drawer */}
@@ -150,15 +144,15 @@ export function Navigation() {
           open={mobileOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
-            keepMounted: true, // Better open performance on mobile
+            keepMounted: true, // Better open performance on mobile.
           }}
           sx={{
-            display: { xs: 'block', md: 'none' },
+            display: { xs: 'block', sm: 'none' },
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: drawerWidth,
-              boxShadow: '4px 0 24px rgba(0,0,0,0.05)',
-              border: 'none',
+              backgroundColor: '#fff',
+              borderRight: '1px solid #e2e8f0',
             },
           }}
         >
@@ -169,12 +163,12 @@ export function Navigation() {
         <Drawer
           variant="permanent"
           sx={{
-            display: { xs: 'none', md: 'block' },
+            display: { xs: 'none', sm: 'block' },
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: drawerWidth,
-              boxShadow: '4px 0 24px rgba(0,0,0,0.05)',
-              border: 'none',
+              backgroundColor: '#fff',
+              borderRight: '1px solid #e2e8f0',
             },
           }}
           open
@@ -182,15 +176,6 @@ export function Navigation() {
           {drawer}
         </Drawer>
       </Box>
-
-      {/* Toolbar spacer for mobile */}
-      <Box
-        component="div"
-        sx={{
-          display: { xs: 'block', md: 'none' },
-          ...theme.mixins.toolbar,
-        }}
-      />
     </>
   );
 }

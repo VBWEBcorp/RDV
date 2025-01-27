@@ -1,27 +1,31 @@
-export type AppointmentType = 'physical' | 'phone' | 'video';
+export type AppointmentType = 'physique' | 'telephone' | 'video';
 
 export interface Appointment {
   id: string;
-  date: Date;
+  date: string;
+  duree: number;
   type: AppointmentType;
-  duree: number; // durée en minutes
   nom: string;
   prenom: string;
   email: string;
   telephone: string;
-  location?: string;
-  meetLink?: string;
+  adresse?: string;
+  lienVisio?: string;
   notes?: string;
-  compteRendu?: {
-    contenu: string;
-    dateAjout: Date;
-  };
+  compteRendu?: string;
+  profile: 'lead' | 'prospect' | 'client' | 'staff' | 'partenaire';
 }
 
 export interface Client {
   id: string;
-  name: string;
+  nom: string;
+  prenom: string;
   email: string;
-  phone: string;
-  notes?: string;
+  telephone: string;
+  adresse?: string;
+  lastVisit?: Date;
+  lastAppointment?: {
+    compteRendu?: string;
+  };
+  profile?: 'lead' | 'prospect' | 'client' | 'staff' | 'partenaire';
 }

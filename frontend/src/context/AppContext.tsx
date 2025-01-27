@@ -1,52 +1,92 @@
-import React, { createContext, useContext, useState } from 'react';
-import { Appointment, Client } from '../types';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { Appointment } from '../types';
 
 interface AppContextType {
   appointments: Appointment[];
-  clients: Client[];
   addAppointment: (appointment: Appointment) => void;
-  updateAppointment: (id: string, appointment: Appointment) => void;
+  updateAppointment: (id: string, updatedAppointment: Appointment) => void;
   deleteAppointment: (id: string) => void;
-  addClient: (client: Client) => void;
-  updateClient: (id: string, client: Client) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+// Données de test
+const testAppointments: Appointment[] = [
+  {
+    id: '1',
+    date: '2025-01-27T10:00:00',
+    duree: 60,
+    type: 'physique',
+    nom: 'Dupont',
+    prenom: 'Jean',
+    email: 'jean.dupont@example.com',
+    telephone: '0123456789',
+    notes: 'Premier rendez-vous',
+    profile: 'prospect'
+  },
+  {
+    id: '2',
+    date: '2025-01-27T14:30:00',
+    duree: 30,
+    type: 'video',
+    nom: 'Martin',
+    prenom: 'Sophie',
+    email: 'sophie.martin@example.com',
+    telephone: '0987654321',
+    notes: 'Suivi projet',
+    profile: 'client'
+  },
+  {
+    id: '3',
+    date: '2025-01-28T09:00:00',
+    duree: 45,
+    type: 'telephone',
+    nom: 'Bernard',
+    prenom: 'Pierre',
+    email: 'pierre.bernard@example.com',
+    telephone: '0654321987',
+    notes: 'Point mensuel',
+    profile: 'partenaire'
+  }
+];
+
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [clients, setClients] = useState<Client[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>(() => {
+    const savedAppointments = localStorage.getItem('appointments');
+    if (savedAppointments) {
+      return JSON.parse(savedAppointments);
+    }
+    // Si pas de rendez-vous sauvegardés, utiliser les données de test
+    return testAppointments;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('appointments', JSON.stringify(appointments));
+  }, [appointments]);
 
   const addAppointment = (appointment: Appointment) => {
-    setAppointments([...appointments, appointment]);
+    setAppointments(prev => [...prev, appointment]);
   };
 
-  const updateAppointment = (id: string, appointment: Appointment) => {
-    setAppointments(appointments.map(a => a.id === id ? appointment : a));
+  const updateAppointment = (id: string, updatedAppointment: Appointment) => {
+    setAppointments(prev =>
+      prev.map(apt => (apt.id === id ? updatedAppointment : apt))
+    );
   };
 
   const deleteAppointment = (id: string) => {
-    setAppointments(appointments.filter(a => a.id !== id));
-  };
-
-  const addClient = (client: Client) => {
-    setClients([...clients, client]);
-  };
-
-  const updateClient = (id: string, client: Client) => {
-    setClients(clients.map(c => c.id === id ? client : c));
+    setAppointments(prev => prev.filter(apt => apt.id !== id));
   };
 
   return (
-    <AppContext.Provider value={{
-      appointments,
-      clients,
-      addAppointment,
-      updateAppointment,
-      deleteAppointment,
-      addClient,
-      updateClient,
-    }}>
+    <AppContext.Provider
+      value={{
+        appointments,
+        addAppointment,
+        updateAppointment,
+        deleteAppointment,
+      }}
+    >
       {children}
     </AppContext.Provider>
   );
