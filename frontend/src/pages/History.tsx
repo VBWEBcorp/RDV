@@ -329,11 +329,11 @@ export function History() {
       {selectedAppointment && (
         <ClientDetailsDialog
           client={{
-            id: selectedAppointment.id,
             nom: selectedAppointment.nom,
             prenom: selectedAppointment.prenom,
             email: selectedAppointment.email,
             telephone: selectedAppointment.telephone,
+            profile: selectedAppointment.profile,
           }}
           appointment={{
             notes: selectedAppointment.notes,

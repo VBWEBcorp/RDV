@@ -21,8 +21,8 @@ export interface Appointment {
     nom: string;
     prenom: string;
     adresse?: string;
-    location: string;
-    meetLink: string;
+    location?: string;
+    meetLink?: string;
     lienVisio?: string;
     notes?: string;
     compteRendu?: string;
