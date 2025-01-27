@@ -17,4 +17,5 @@ export interface Appointment {
     notes?: string;
     compteRendu?: string;
     profile: ProfileType;
+    status?: 'pending' | 'confirmed' | 'cancelled';
 }

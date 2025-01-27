@@ -11,6 +11,7 @@ import {
   FormControl,
   InputLabel,
   Select,
+  SelectChangeEvent,
   Stack,
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
@@ -49,30 +50,28 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
     }
   }, [formData.type]);
 
-  const handleChange = (field: keyof Omit<Appointment, 'id'>) => (
-    event: React.ChangeEvent<HTMLInputElement | { value: unknown }>
+  const handleChange = (name: keyof Omit<Appointment, 'id'>) => (
+    event: React.ChangeEvent<HTMLInputElement | { value: unknown }> | SelectChangeEvent
   ) => {
-    const value = event.target.value;
-    
-    if (field === 'type') {
-      if (value === 'video') {
+    if (name === 'type') {
+      if (event.target.value === 'video') {
         // Ne pas changer le meetLink s'il existe déjà
         setFormData(prev => ({
           ...prev,
-          [field]: value,
+          [name]: event.target.value,
           meetLink: prev.meetLink || `https://meet.google.com/${Math.random().toString(36).substring(2, 12)}`
         }));
       } else {
         setFormData(prev => ({
           ...prev,
-          [field]: value,
+          [name]: event.target.value,
           meetLink: '' // Effacer le lien si ce n'est pas une visio
         }));
       }
     } else {
       setFormData(prev => ({
         ...prev,
-        [field]: value
+        [name]: event.target.value
       }));
     }
   };
