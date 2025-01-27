@@ -1,3 +1,4 @@
+// Types for appointment management
 export type AppointmentType = 'video' | 'physique' | 'telephone';
 export type ProfileType = 'lead' | 'prospect' | 'client' | 'staff' | 'partenaire';
 
@@ -19,3 +20,4 @@ export interface Appointment {
     profile: ProfileType;
     status?: 'pending' | 'confirmed' | 'cancelled';
 }
+// Force déploiement
