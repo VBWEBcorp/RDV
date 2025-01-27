@@ -173,25 +173,27 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <DateTimePicker
-                label="Date et heure"
-                value={formData.date}
-                onChange={handleDateChange}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    required: true,
-                    sx: {
-                      '& .MuiOutlinedInput-root': {
-                        '&.Mui-focused fieldset': {
-                          borderColor: '#2196f3',
-                          borderWidth: 2,
-                        },
+              <Stack spacing={2}>
+                <DateTimePicker
+                  label="Date et heure"
+                  value={new Date(formData.date)}
+                  onChange={handleDateChange}
+                  sx={{
+                    width: '100%',
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#E0E3E7',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#B2BAC2',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#6F7E8C',
                       },
                     },
-                  },
-                }}
-              />
+                  }}
+                />
+              </Stack>
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
