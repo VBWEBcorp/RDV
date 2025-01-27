@@ -15,7 +15,7 @@ import {
   Stack,
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
-import { Appointment, AppointmentType, ProfileType } from '../types/appointment';
+import { Appointment, AppointmentType, ProfileType, Client } from '../types/appointment';
 
 interface AppointmentFormProps {
   onSubmit: (data: Omit<Appointment, 'id'>) => void;
@@ -25,17 +25,19 @@ interface AppointmentFormProps {
 
 export function AppointmentForm({ onSubmit, onCancel, initialData }: AppointmentFormProps) {
   const [formData, setFormData] = React.useState<Omit<Appointment, 'id'>>({
-    nom: initialData?.nom || '',
-    prenom: initialData?.prenom || '',
-    email: initialData?.email || '',
-    telephone: initialData?.telephone || '',
+    client: initialData?.client || {
+      nom: '',
+      prenom: '',
+      email: '',
+      telephone: '',
+      profile: 'prospect'
+    },
     date: initialData?.date || new Date().toISOString(),
     duree: initialData?.duree || 30,
     type: initialData?.type || 'physique',
     location: initialData?.location || '',
     meetLink: initialData?.meetLink || '',
     notes: initialData?.notes || '',
-    profile: initialData?.profile || 'prospect',
     status: initialData?.status || 'pending'
   });
 
@@ -57,6 +59,18 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
         [name]: event.target.value
       }));
     }
+  };
+
+  const handleClientChange = (field: keyof Client) => (
+    event: React.ChangeEvent<HTMLInputElement | { value: unknown }> | SelectChangeEvent
+  ) => {
+    setFormData(prev => ({
+      ...prev,
+      client: {
+        ...prev.client,
+        [field]: event.target.value
+      }
+    }));
   };
 
   const handleDateChange = (newDate: Date | null) => {
@@ -106,8 +120,8 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
             <Grid item xs={12} sm={6}>
               <TextField
                 label="Nom"
-                value={formData.nom}
-                onChange={handleChange('nom')}
+                value={formData.client.nom}
+                onChange={handleClientChange('nom')}
                 fullWidth
                 required
                 sx={{
@@ -123,8 +137,8 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
             <Grid item xs={12} sm={6}>
               <TextField
                 label="Prénom"
-                value={formData.prenom}
-                onChange={handleChange('prenom')}
+                value={formData.client.prenom}
+                onChange={handleClientChange('prenom')}
                 fullWidth
                 required
                 sx={{
@@ -141,8 +155,8 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
               <TextField
                 label="Email"
                 type="email"
-                value={formData.email}
-                onChange={handleChange('email')}
+                value={formData.client.email}
+                onChange={handleClientChange('email')}
                 fullWidth
                 required
                 sx={{
@@ -158,8 +172,8 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
             <Grid item xs={12} sm={6}>
               <TextField
                 label="Téléphone"
-                value={formData.telephone}
-                onChange={handleChange('telephone')}
+                value={formData.client.telephone}
+                onChange={handleClientChange('telephone')}
                 fullWidth
                 required
                 sx={{
@@ -230,8 +244,8 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
                 <FormControl fullWidth>
                   <InputLabel>Profil</InputLabel>
                   <Select
-                    value={formData.profile}
-                    onChange={handleChange('profile')}
+                    value={formData.client.profile}
+                    onChange={handleClientChange('profile')}
                     label="Profil"
                     sx={{
                       '& .MuiSelect-select': {
