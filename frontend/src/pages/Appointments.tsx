@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Grid, Card, CardContent, Stack, Fab, ToggleButtonGroup, ToggleButton, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, Chip, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@mui/material';
+import { Box, Typography, Grid, Card, CardContent, Stack, Fab, ToggleButtonGroup, ToggleButton, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, Chip, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Container, Paper } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useApp } from '../context/AppContext';
 import { Calendar } from '../components/Calendar';
@@ -122,306 +122,293 @@ export function Appointments() {
     <Box 
       component="main" 
       sx={{ 
-        p: { xs: 0, sm: 3 },
+        p: { xs: 0, sm: 2, md: 3 },
         minHeight: '100vh',
       }}
     >
-      <Box sx={{ 
-        mb: 4,
-        mt: { xs: 8, sm: 2 },
-        px: { xs: 2, sm: 0 },
-        pt: { xs: 2, sm: 0 },
-      }}>
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 2,
-          mb: 3
-        }}>
-          <Typography 
-            variant="h4" 
-            component="h1" 
-            sx={{
-              mb: 4,
-              color: '#4EBAEC',
-              fontWeight: 600,
-            }}
-          >
-            Gestion des Rendez-vous
-          </Typography>
+      <Container 
+        maxWidth="lg" 
+        sx={{ 
+          p: { xs: 0, sm: 2, md: 3 },
+          mx: 'auto',
+        }}
+      >
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          sx={{
+            mb: 4,
+            color: '#4EBAEC',
+            fontWeight: 600,
+            px: { xs: 2, sm: 0 },
+            pt: { xs: 2, sm: 0 },
+            textAlign: { xs: 'left', sm: 'center' },
+          }}
+        >
+          Gestion des Rendez-vous
+        </Typography>
 
+        <Box sx={{ 
+          px: { xs: 2, sm: 0 },
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: { xs: 'stretch', sm: 'center' },
+        }}>
           <ToggleButtonGroup
             value={viewMode}
             exclusive
             onChange={handleViewModeChange}
             aria-label="view mode"
-            size="small"
             sx={{
+              mb: 3,
+              alignSelf: { xs: 'stretch', sm: 'center' },
               '& .MuiToggleButton-root': {
-                border: '1px solid rgba(78,186,236,0.5)',
-                color: '#4EBAEC',
-                '&.Mui-selected': {
-                  backgroundColor: 'rgba(78,186,236,0.1)',
-                  color: '#4EBAEC',
-                  '&:hover': {
-                    backgroundColor: 'rgba(78,186,236,0.2)',
-                  }
-                },
-                '&:hover': {
-                  backgroundColor: 'rgba(78,186,236,0.05)',
-                }
-              }
+                px: 3,
+                py: 1,
+              },
             }}
           >
             <ToggleButton value="calendar" aria-label="calendar view">
-              <CalendarMonth />
+              <CalendarMonth sx={{ mr: 1 }} /> Calendrier
             </ToggleButton>
             <ToggleButton value="list" aria-label="list view">
-              <ViewList />
+              <ViewList sx={{ mr: 1 }} /> Liste
             </ToggleButton>
           </ToggleButtonGroup>
-        </Box>
 
-        <Grid container spacing={2} sx={{ mt: 2 }}>
-          <Grid item xs={12} sm={4}>
-            <Card sx={{ 
-              background: '#fff',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
-              borderRadius: '12px',
-            }}>
-              <CardContent sx={{ p: 2 }}>
-                <Typography 
-                  color="text.secondary" 
-                  variant="caption" 
-                  sx={{ 
-                    letterSpacing: 0.5,
-                    textTransform: 'uppercase',
-                    fontSize: '0.75rem',
-                    color: '#94A3B8'
-                  }}
-                >
-                  Aujourd'hui
-                </Typography>
-                <Typography 
-                  variant="h3" 
-                  component="div" 
-                  sx={{ 
-                    color: '#4EBAEC',
-                    fontSize: '2rem',
-                    fontWeight: 500,
-                    mt: 0.5
-                  }}
-                >
-                  {todayAppointments.length}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} sm={4}>
-            <Card sx={{ 
-              background: '#fff',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
-              borderRadius: '12px',
-            }}>
-              <CardContent sx={{ p: 2 }}>
-                <Typography 
-                  color="text.secondary" 
-                  variant="caption" 
-                  sx={{ 
-                    letterSpacing: 0.5,
-                    textTransform: 'uppercase',
-                    fontSize: '0.75rem',
-                    color: '#94A3B8'
-                  }}
-                >
-                  Cette semaine
-                </Typography>
-                <Typography 
-                  variant="h3" 
-                  component="div" 
-                  sx={{ 
-                    color: '#4EBAEC',
-                    fontSize: '2rem',
-                    fontWeight: 500,
-                    mt: 0.5
-                  }}
-                >
-                  {weekAppointments.length}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} sm={4}>
-            <Card sx={{ 
-              background: '#fff',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
-              borderRadius: '12px',
-            }}>
-              <CardContent sx={{ p: 2 }}>
-                <Typography 
-                  color="text.secondary" 
-                  variant="caption" 
-                  sx={{ 
-                    letterSpacing: 0.5,
-                    textTransform: 'uppercase',
-                    fontSize: '0.75rem',
-                    color: '#94A3B8'
-                  }}
-                >
-                  Total à venir
-                </Typography>
-                <Typography 
-                  variant="h3" 
-                  component="div" 
-                  sx={{ 
-                    color: '#4EBAEC',
-                    fontSize: '2rem',
-                    fontWeight: 500,
-                    mt: 0.5
-                  }}
-                >
-                  {futureAppointments.length}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-
-        {viewMode === 'calendar' ? (
-          <Calendar appointments={appointments} onSelectEvent={handleSelectEvent} />
-        ) : (
-          <List sx={{ 
-            bgcolor: 'background.paper',
-            borderRadius: 2,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-          }}>
-            {futureAppointments.map((appointment) => (
-              <ListItem
-                key={appointment.id}
+          <Grid container spacing={3} justifyContent="center">
+            <Grid item xs={12} sm={6} md={4}>
+              <Paper
+                elevation={0}
                 sx={{
-                  borderBottom: '1px solid rgba(0,0,0,0.05)',
-                  '&:last-child': {
-                    borderBottom: 'none',
-                  },
-                  py: 2,
+                  p: 3,
+                  height: '100%',
+                  background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: 2,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
                 }}
               >
-                <ListItemText
-                  primary={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                      <Typography variant="subtitle1" fontWeight="600">
-                        {format(new Date(appointment.date), 'EEEE d MMMM yyyy', { locale: fr })}
-                      </Typography>
-                      <Chip
-                        label={getAppointmentTypeLabel(appointment.type)}
-                        size="small"
-                        sx={{
-                          backgroundColor: getAppointmentTypeColor(appointment.type),
-                          color: 'white',
-                          fontWeight: 500,
-                        }}
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  AUJOURD'HUI
+                </Typography>
+                <Typography variant="h3" component="div" color="text.primary">
+                  {todayAppointments.length}
+                </Typography>
+              </Paper>
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={4}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  height: '100%',
+                  background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: 2,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                }}
+              >
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  CETTE SEMAINE
+                </Typography>
+                <Typography variant="h3" component="div" color="text.primary">
+                  {weekAppointments.length}
+                </Typography>
+              </Paper>
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={4}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  height: '100%',
+                  background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: 2,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                }}
+              >
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  TOTAL À VENIR
+                </Typography>
+                <Typography variant="h3" component="div" color="text.primary">
+                  {futureAppointments.length}
+                </Typography>
+              </Paper>
+            </Grid>
+          </Grid>
+
+          <Box sx={{ 
+            mt: 4,
+            width: '100%',
+            maxWidth: viewMode === 'calendar' ? 'none' : 'lg',
+            mx: 'auto',
+          }}>
+            {viewMode === 'calendar' ? (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: { xs: 2, sm: 3 },
+                  background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: 2,
+                }}
+              >
+                <Calendar appointments={appointments} onSelectEvent={handleSelectEvent} />
+              </Paper>
+            ) : (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: { xs: 2, sm: 3 },
+                  background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: 2,
+                }}
+              >
+                <List sx={{ 
+                  bgcolor: 'background.paper',
+                  borderRadius: 2,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                }}>
+                  {futureAppointments.map((appointment) => (
+                    <ListItem
+                      key={appointment.id}
+                      sx={{
+                        borderBottom: '1px solid rgba(0,0,0,0.05)',
+                        '&:last-child': {
+                          borderBottom: 'none',
+                        },
+                        py: 2,
+                      }}
+                    >
+                      <ListItemText
+                        primary={
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                            <Typography variant="subtitle1" fontWeight="600">
+                              {format(new Date(appointment.date), 'EEEE d MMMM yyyy', { locale: fr })}
+                            </Typography>
+                            <Chip
+                              label={getAppointmentTypeLabel(appointment.type)}
+                              size="small"
+                              sx={{
+                                backgroundColor: getAppointmentTypeColor(appointment.type),
+                                color: 'white',
+                                fontWeight: 500,
+                              }}
+                            />
+                          </Box>
+                        }
+                        secondary={
+                          <Stack spacing={1}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                              <Typography variant="body1" color="text.primary" sx={{ fontWeight: 500 }}>
+                                {format(new Date(appointment.date), 'HH:mm')} ({appointment.duree} min)
+                              </Typography>
+                              <Typography variant="body1" color="text.primary" sx={{ 
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1
+                              }}>
+                                {getProfileIcon(appointment.profile)} {appointment.nom} {appointment.prenom}
+                              </Typography>
+                            </Box>
+                            
+                            <Stack direction="row" spacing={2} sx={{ color: 'text.secondary' }}>
+                              {appointment.telephone && (
+                                <Typography variant="body2" component="span">
+                                  📱 {appointment.telephone}
+                                </Typography>
+                              )}
+                              {appointment.email && (
+                                <Typography variant="body2" component="span">
+                                  ✉️ {appointment.email}
+                                </Typography>
+                              )}
+                            </Stack>
+
+                            {appointment.location && (
+                              <Typography variant="body2" color="text.secondary">
+                                📍 {appointment.location}
+                              </Typography>
+                            )}
+                            
+                            {appointment.type === 'video' && appointment.meetLink && (
+                              <Typography variant="body2" color="text.secondary" sx={{ 
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 0.5,
+                                '& a': {
+                                  color: '#4EBAEC',
+                                  textDecoration: 'none',
+                                  '&:hover': {
+                                    textDecoration: 'underline'
+                                  }
+                                }
+                              }}>
+                                🎥 <a href={appointment.meetLink} target="_blank" rel="noopener noreferrer">
+                                  Rejoindre la visioconférence
+                                </a>
+                              </Typography>
+                            )}
+
+                            {appointment.notes && (
+                              <Typography 
+                                variant="body2" 
+                                color="text.secondary"
+                                sx={{
+                                  mt: 1,
+                                  p: 1.5,
+                                  backgroundColor: 'rgba(0,0,0,0.02)',
+                                  borderRadius: 1,
+                                  borderLeft: '3px solid #4EBAEC'
+                                }}
+                              >
+                                📝 {appointment.notes}
+                              </Typography>
+                            )}
+                          </Stack>
+                        }
                       />
-                    </Box>
-                  }
-                  secondary={
-                    <Stack spacing={1}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Typography variant="body1" color="text.primary" sx={{ fontWeight: 500 }}>
-                          {format(new Date(appointment.date), 'HH:mm')} ({appointment.duree} min)
-                        </Typography>
-                        <Typography variant="body1" color="text.primary" sx={{ 
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 1
-                        }}>
-                          {getProfileIcon(appointment.profile)} {appointment.nom} {appointment.prenom}
-                        </Typography>
-                      </Box>
-                      
-                      <Stack direction="row" spacing={2} sx={{ color: 'text.secondary' }}>
-                        {appointment.telephone && (
-                          <Typography variant="body2" component="span">
-                            📱 {appointment.telephone}
-                          </Typography>
-                        )}
-                        {appointment.email && (
-                          <Typography variant="body2" component="span">
-                            ✉️ {appointment.email}
-                          </Typography>
-                        )}
-                      </Stack>
-
-                      {appointment.location && (
-                        <Typography variant="body2" color="text.secondary">
-                          📍 {appointment.location}
-                        </Typography>
-                      )}
-                      
-                      {appointment.type === 'video' && appointment.meetLink && (
-                        <Typography variant="body2" color="text.secondary" sx={{ 
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 0.5,
-                          '& a': {
-                            color: '#4EBAEC',
-                            textDecoration: 'none',
-                            '&:hover': {
-                              textDecoration: 'underline'
-                            }
-                          }
-                        }}>
-                          🎥 <a href={appointment.meetLink} target="_blank" rel="noopener noreferrer">
-                            Rejoindre la visioconférence
-                          </a>
-                        </Typography>
-                      )}
-
-                      {appointment.notes && (
-                        <Typography 
-                          variant="body2" 
-                          color="text.secondary"
-                          sx={{
-                            mt: 1,
-                            p: 1.5,
-                            backgroundColor: 'rgba(0,0,0,0.02)',
-                            borderRadius: 1,
-                            borderLeft: '3px solid #4EBAEC'
-                          }}
+                      <ListItemSecondaryAction>
+                        <IconButton 
+                          onClick={() => handleSelectEvent(appointment)}
+                          sx={{ color: '#4EBAEC' }}
                         >
-                          📝 {appointment.notes}
-                        </Typography>
-                      )}
-                    </Stack>
-                  }
-                />
-                <ListItemSecondaryAction>
-                  <IconButton 
-                    onClick={() => handleSelectEvent(appointment)}
-                    sx={{ color: '#4EBAEC' }}
-                  >
-                    <Edit />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
-            {futureAppointments.length === 0 && (
-              <ListItem>
-                <ListItemText
-                  primary={
-                    <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-                      Aucun rendez-vous à venir
-                    </Typography>
-                  }
-                />
-              </ListItem>
+                          <Edit />
+                        </IconButton>
+                      </ListItemSecondaryAction>
+                    </ListItem>
+                  ))}
+                  {futureAppointments.length === 0 && (
+                    <ListItem>
+                      <ListItemText
+                        primary={
+                          <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
+                            Aucun rendez-vous à venir
+                          </Typography>
+                        }
+                      />
+                    </ListItem>
+                  )}
+                </List>
+              </Paper>
             )}
-          </List>
-        )}
-      </Box>
+          </Box>
+        </Box>
+      </Container>
 
       {showForm && (
         <AppointmentForm
