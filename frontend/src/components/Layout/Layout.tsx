@@ -118,28 +118,19 @@ export function Layout({ children }: Props) {
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
-          backgroundColor: 'white',
+          backgroundColor: '#F8FAFC',
           boxShadow: 'none',
-          borderBottom: '1px solid #e2e8f0',
+          borderBottom: '1px solid rgba(0,0,0,0.05)',
         }}
       >
         <Toolbar
           sx={{
             display: 'flex',
             justifyContent: { xs: 'space-between', sm: 'flex-start' },
-            backgroundColor: { xs: '#4EBAEC', sm: 'white' },
-            borderRadius: { xs: '0 0 32px 32px', sm: 0 },
-            boxShadow: {
-              xs: '0 8px 32px rgba(78, 186, 236, 0.15)',
-              sm: 'none',
-            },
-            minHeight: { xs: '80px', sm: '64px' },
+            backgroundColor: '#F8FAFC',
+            minHeight: { xs: '64px', sm: '64px' },
             transition: 'all 0.3s ease',
             backdropFilter: { xs: 'blur(10px)', sm: 'none' },
-            background: {
-              xs: 'linear-gradient(135deg, #4EBAEC 0%, #2196F3 100%)',
-              sm: 'white',
-            },
           }}
         >
           <IconButton

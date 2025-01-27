@@ -41,122 +41,137 @@ export function Calendar({ appointments, onSelectEvent }: CalendarProps) {
     }
   };
 
+  const appointmentsForDay = daysOfWeek.map(day => getAppointmentsForDay(day));
+
   return (
-    <Box sx={{ width: '100%' }}>
-      <Stack 
-        direction="row" 
-        spacing={2} 
-        alignItems="center" 
-        justifyContent="space-between"
-        sx={{ mb: 2 }}
-      >
-        <IconButton 
-          onClick={handlePreviousWeek}
-          sx={{ 
-            color: '#4EBAEC',
-            '&:hover': {
-              backgroundColor: 'rgba(78,186,236,0.1)',
-            }
-          }}
-        >
+    <Box sx={{ 
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      width: '100%',
+      maxWidth: '100%',
+      mx: 'auto',
+      px: { xs: 1, sm: 2, md: 3 },
+    }}>
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        width: '100%',
+        maxWidth: '800px',
+        mb: 3,
+      }}>
+        <IconButton onClick={handlePreviousWeek} size="large" sx={{ color: '#4EBAEC' }}>
           <ChevronLeft />
         </IconButton>
+        
         <Typography 
           variant="h6" 
-          sx={{ 
+          component="div"
+          sx={{
             color: '#4EBAEC',
-            fontWeight: 600,
-            fontSize: { xs: '1rem', sm: '1.25rem' }
+            fontWeight: 500,
+            textAlign: 'center',
+            flex: 1,
           }}
         >
-          {format(weekStart, 'd MMMM', { locale: fr })} - {format(weekEnd, 'd MMMM yyyy', { locale: fr })}
+          {format(weekStart, 'd MMMM')} - {format(weekEnd, 'd MMMM yyyy')}
         </Typography>
-        <IconButton 
-          onClick={handleNextWeek}
-          sx={{ 
-            color: '#4EBAEC',
-            '&:hover': {
-              backgroundColor: 'rgba(78,186,236,0.1)',
-            }
-          }}
-        >
+
+        <IconButton onClick={handleNextWeek} size="large" sx={{ color: '#4EBAEC' }}>
           <ChevronRight />
         </IconButton>
-      </Stack>
+      </Box>
 
-      <Stack spacing={2}>
-        {daysOfWeek.map((day) => (
-          <Paper
-            key={day.toISOString()}
-            elevation={0}
-            sx={{
-              p: 2,
-              background: isToday(day) 
-                ? 'linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%)'
-                : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-              borderRadius: 2,
-              border: isToday(day) ? '2px solid #4EBAEC' : '1px solid rgba(0,0,0,0.08)',
-              position: 'relative',
-            }}
-          >
-            <Typography
-              variant="h6"
+      <Box sx={{
+        width: '100%',
+        maxWidth: '800px',
+        overflowX: 'auto',
+        '&::-webkit-scrollbar': {
+          height: '8px',
+        },
+        '&::-webkit-scrollbar-track': {
+          background: '#f1f1f1',
+          borderRadius: '4px',
+        },
+        '&::-webkit-scrollbar-thumb': {
+          background: '#4EBAEC',
+          borderRadius: '4px',
+        },
+      }}>
+        <Box sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          minWidth: { xs: '600px', md: '100%' },
+        }}>
+          {daysOfWeek.map((day, index) => (
+            <Box 
+              key={day.toISOString()} 
               sx={{
                 mb: 2,
-                fontWeight: isToday(day) ? 600 : 500,
-                color: isToday(day) ? '#4EBAEC' : 'text.primary',
-                fontSize: { xs: '1rem', sm: '1.25rem' },
-                wordBreak: 'break-word'
+                p: 2,
+                backgroundColor: isToday(day) ? 'rgba(78, 186, 236, 0.05)' : 'transparent',
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: isToday(day) ? '#4EBAEC' : 'rgba(0, 0, 0, 0.12)',
               }}
             >
-              {format(day, 'EEEE d MMMM', { locale: fr })}
-            </Typography>
+              <Typography 
+                variant="subtitle1" 
+                sx={{
+                  mb: 1,
+                  color: isToday(day) ? '#4EBAEC' : 'text.primary',
+                  fontWeight: isToday(day) ? 600 : 500,
+                }}
+              >
+                {format(day, 'EEEE d MMMM', { locale: fr })}
+              </Typography>
 
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ gap: 1 }}>
-              {getAppointmentsForDay(day).map((apt) => (
-                <Chip
-                  key={apt.id}
-                  label={`${format(new Date(apt.date), 'HH:mm')} - ${apt.nom} ${apt.prenom}`}
-                  onClick={() => onSelectEvent(apt)}
-                  sx={{
-                    backgroundColor: getAppointmentColor(apt.type),
-                    color: 'white',
-                    fontWeight: 500,
-                    fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                    height: 'auto',
-                    '& .MuiChip-label': {
-                      px: 2,
-                      py: 1,
-                      whiteSpace: 'normal',
-                      display: 'block'
-                    },
-                    '&:hover': {
-                      backgroundColor: getAppointmentColor(apt.type),
-                      filter: 'brightness(0.9)',
-                      transform: 'translateY(-1px)',
-                    },
-                    transition: 'all 0.2s ease-in-out',
-                    cursor: 'pointer',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                  }}
-                />
-              ))}
-              {getAppointmentsForDay(day).length === 0 && (
+              {appointmentsForDay[index].length > 0 ? (
+                <Stack spacing={1}>
+                  {appointmentsForDay[index].map((appointment) => (
+                    <Paper
+                      key={appointment.id}
+                      elevation={0}
+                      onClick={() => onSelectEvent(appointment)}
+                      sx={{
+                        p: 1.5,
+                        backgroundColor: getAppointmentColor(appointment.type),
+                        color: 'white',
+                        borderRadius: 1,
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s ease',
+                        '&:hover': {
+                          transform: 'translateX(4px)',
+                        },
+                      }}
+                    >
+                      <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                        {format(new Date(appointment.date), 'HH:mm')} ({appointment.duree} min)
+                      </Typography>
+                      <Typography variant="body2">
+                        {appointment.nom} {appointment.prenom}
+                      </Typography>
+                    </Paper>
+                  ))}
+                </Stack>
+              ) : (
                 <Typography 
                   variant="body2" 
                   color="text.secondary"
                   sx={{ 
-                    fontStyle: 'italic',
-                    py: 1
+                    textAlign: 'center',
+                    py: 2,
+                    fontStyle: 'italic'
                   }}
                 >
                   Aucun rendez-vous
                 </Typography>
               )}
-            </Stack>
-          </Paper>
-        ))}
-      </Stack>
+            </Box>
+          ))}
+        </Box>
+      </Box>
     </Box>
   );
 }
