@@ -1,20 +1,20 @@
 import React from 'react';
-import { Box, Typography, Grid, Card, CardContent, Stack, Fab, ToggleButtonGroup, ToggleButton, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, Chip, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Container, Paper } from '@mui/material';
+import { Box, Typography, Grid, Stack, Fab, ToggleButtonGroup, ToggleButton, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, Chip, Container, Paper } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useApp } from '../context/AppContext';
 import { Calendar } from '../components/Calendar';
 import { AppointmentForm } from '../components/AppointmentForm';
-import { CalendarMonth, ViewList, Edit, NoteAdd } from '@mui/icons-material';
+import { CalendarMonth, ViewList, Edit } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { v4 as uuidv4 } from 'uuid';
-import { Appointment } from '../types';
+import { Appointment } from '../types/appointment';
 
 export function Appointments() {
   const { appointments, addAppointment, updateAppointment } = useApp();
   const [showForm, setShowForm] = React.useState(false);
-  const [selectedAppointment, setSelectedAppointment] = React.useState<Appointment | null>(null);
-  const [viewMode, setViewMode] = React.useState('calendar'); // 'calendar' ou 'list'
+  const [selectedAppointment, setSelectedAppointment] = React.useState<Appointment | undefined>(undefined);
+  const [viewMode, setViewMode] = React.useState<'calendar' | 'list'>('calendar'); // 'calendar' ou 'list'
 
   const futureAppointments = React.useMemo(() => {
     return appointments
@@ -66,36 +66,36 @@ export function Appointments() {
       });
     }
     setShowForm(false);
-    setSelectedAppointment(null);
+    setSelectedAppointment(undefined);
   };
 
-  const handleViewModeChange = (event, newMode) => {
+  const handleViewModeChange = (_: React.MouseEvent<HTMLElement>, newMode: 'calendar' | 'list') => {
     if (newMode !== null) {
       setViewMode(newMode);
     }
   };
 
-  const getAppointmentTypeColor = (type) => {
+  const getAppointmentTypeColor = (type: Appointment['type']) => {
     switch (type) {
-      case 'physical':
-        return '#4caf50';
-      case 'phone':
-        return '#ff9800';
       case 'video':
-        return '#4EBAEC';
+        return 'primary';
+      case 'physique':
+        return 'success';
+      case 'telephone':
+        return 'warning';
       default:
-        return '#9e9e9e';
+        return 'default';
     }
   };
 
-  const getAppointmentTypeLabel = (type) => {
+  const getAppointmentTypeLabel = (type: Appointment['type']) => {
     switch (type) {
-      case 'physical':
-        return 'Physique';
-      case 'phone':
-        return 'Téléphone';
       case 'video':
         return 'Vidéo';
+      case 'physique':
+        return 'Physique';
+      case 'telephone':
+        return 'Téléphone';
       default:
         return type;
     }
@@ -422,7 +422,7 @@ export function Appointments() {
             onSubmit={handleSubmit}
             onCancel={() => {
               setShowForm(false);
-              setSelectedAppointment(null);
+              setSelectedAppointment(undefined);
             }}
             initialData={selectedAppointment}
           />
@@ -432,7 +432,7 @@ export function Appointments() {
           color="primary"
           aria-label="add"
           onClick={() => {
-            setSelectedAppointment(null);
+            setSelectedAppointment(undefined);
             setShowForm(true);
           }}
           sx={{

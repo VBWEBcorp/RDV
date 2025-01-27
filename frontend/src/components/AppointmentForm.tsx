@@ -14,7 +14,7 @@ import {
   Stack,
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
-import { Appointment } from '../types';
+import { Appointment, AppointmentType, ProfileType } from '../types/appointment';
 import { generateGoogleMeetLink } from '../utils/googleMeet';
 
 interface AppointmentFormProps {
@@ -29,9 +29,9 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
     prenom: initialData?.prenom || '',
     email: initialData?.email || '',
     telephone: initialData?.telephone || '',
-    date: initialData?.date || new Date(),
+    date: initialData?.date || new Date().toISOString(),
     duree: initialData?.duree || 30,
-    type: initialData?.type || 'physical',
+    type: initialData?.type || 'physique',
     location: initialData?.location || '',
     meetLink: initialData?.meetLink || '',
     notes: initialData?.notes || '',
@@ -81,7 +81,7 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
     if (newDate) {
       setFormData(prev => ({
         ...prev,
-        date: newDate,
+        date: newDate.toISOString(),
       }));
     }
   };
@@ -239,7 +239,7 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
                     onChange={handleChange('type')}
                     label="Type de rendez-vous"
                   >
-                    <MenuItem value="physical">Physique</MenuItem>
+                    <MenuItem value="physique">Physique</MenuItem>
                     <MenuItem value="phone">Téléphone</MenuItem>
                     <MenuItem value="video">Visioconférence</MenuItem>
                   </Select>
@@ -296,7 +296,7 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
                 />
               </Grid>
             )}
-            {formData.type === 'physical' && (
+            {formData.type === 'physique' && (
               <Grid item xs={12}>
                 <TextField
                   label="Lieu"
