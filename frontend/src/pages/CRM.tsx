@@ -168,7 +168,6 @@ export function CRM() {
                     </InputAdornment>
                   ),
                 }}
-                helperText="Exemples : 'Dupont', 'jean.dupont@email.com', '27/01/2025'"
               />
 
               <ToggleButtonGroup
