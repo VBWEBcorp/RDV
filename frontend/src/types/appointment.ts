@@ -14,19 +14,13 @@ export interface Client {
 export interface Appointment {
     id: string;
     date: string;
-    type: AppointmentType;
-    email: string;
-    telephone: string;
-    duree: number;
-    nom: string;
-    prenom: string;
-    adresse?: string;
-    location?: string;
-    meetLink?: string;
-    lienVisio?: string;
+    time: string;
+    patient_name: string;
+    patient_email: string;
+    patient_phone: string;
+    status: 'pending' | 'confirmed' | 'cancelled';
     notes?: string;
-    compteRendu?: string;
-    profile: ProfileType;
-    status?: 'pending' | 'confirmed' | 'cancelled';
+    created_at?: string;
+    updated_at?: string;
 }
 // Force déploiement

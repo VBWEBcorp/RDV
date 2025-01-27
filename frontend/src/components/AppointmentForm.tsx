@@ -18,54 +18,29 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import { Appointment, AppointmentType, ProfileType } from '../types/appointment';
 
 interface AppointmentFormProps {
-  onSubmit: (data: Omit<Appointment, 'id'>) => void;
+  onSubmit: (data: Omit<Appointment, 'id' | 'created_at' | 'updated_at'>) => void;
   onCancel: () => void;
   initialData?: Appointment;
 }
 
 export function AppointmentForm({ onSubmit, onCancel, initialData }: AppointmentFormProps) {
-  const [formData, setFormData] = React.useState<Omit<Appointment, 'id'>>({
-    nom: initialData?.nom || '',
-    prenom: initialData?.prenom || '',
-    email: initialData?.email || '',
-    telephone: initialData?.telephone || '',
-    date: initialData?.date || new Date().toISOString(),
-    duree: initialData?.duree || 30,
-    type: initialData?.type || 'physique',
-    location: initialData?.location || '',
-    meetLink: initialData?.meetLink || '',
-    notes: initialData?.notes || '',
-    profile: initialData?.profile || 'prospect',
-    status: initialData?.status || 'pending'
+  const [formData, setFormData] = React.useState<Omit<Appointment, 'id' | 'created_at' | 'updated_at'>>({
+    patient_name: initialData?.patient_name || '',
+    patient_email: initialData?.patient_email || '',
+    patient_phone: initialData?.patient_phone || '',
+    date: initialData?.date || new Date().toISOString().split('T')[0],
+    time: initialData?.time || new Date().toTimeString().slice(0, 5),
+    status: initialData?.status || 'pending',
+    notes: initialData?.notes || ''
   });
 
-  const handleChange = (name: keyof Omit<Appointment, 'id'>) => (
+  const handleChange = (name: keyof Omit<Appointment, 'id' | 'created_at' | 'updated_at'>) => (
     event: React.ChangeEvent<HTMLInputElement | { value: unknown }> | SelectChangeEvent
   ) => {
-    if (name === 'type') {
-      const newType = event.target.value as AppointmentType;
-      setFormData(prev => ({
-        ...prev,
-        type: newType,
-        meetLink: newType === 'video' 
-          ? (prev.meetLink || `https://meet.google.com/${Math.random().toString(36).substring(2, 12)}`)
-          : ''
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: event.target.value
-      }));
-    }
-  };
-
-  const handleDateChange = (newDate: Date | null) => {
-    if (newDate) {
-      setFormData(prev => ({
-        ...prev,
-        date: newDate.toISOString()
-      }));
-    }
+    setFormData(prev => ({
+      ...prev,
+      [name]: event.target.value
+    }));
   };
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -105,9 +80,9 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
               <TextField
-                label="Nom"
-                value={formData.nom}
-                onChange={handleChange('nom')}
+                label="Nom du patient"
+                value={formData.patient_name}
+                onChange={handleChange('patient_name')}
                 fullWidth
                 required
                 sx={{
@@ -122,27 +97,10 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
-                label="Prénom"
-                value={formData.prenom}
-                onChange={handleChange('prenom')}
-                fullWidth
-                required
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#2196f3',
-                      borderWidth: 2,
-                    },
-                  },
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Email"
+                label="Email du patient"
                 type="email"
-                value={formData.email}
-                onChange={handleChange('email')}
+                value={formData.patient_email}
+                onChange={handleChange('patient_email')}
                 fullWidth
                 required
                 sx={{
@@ -157,9 +115,9 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
-                label="Téléphone"
-                value={formData.telephone}
-                onChange={handleChange('telephone')}
+                label="Téléphone du patient"
+                value={formData.patient_phone}
+                onChange={handleChange('patient_phone')}
                 fullWidth
                 required
                 sx={{
@@ -174,21 +132,17 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
             </Grid>
             <Grid item xs={12} sm={6}>
               <Stack spacing={2}>
-                <DateTimePicker
-                  label="Date et heure"
-                  value={new Date(formData.date)}
-                  onChange={handleDateChange}
+                <TextField
+                  label="Date"
+                  value={formData.date}
+                  onChange={handleChange('date')}
+                  fullWidth
+                  required
                   sx={{
-                    width: '100%',
                     '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: '#E0E3E7',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: '#B2BAC2',
-                      },
                       '&.Mui-focused fieldset': {
-                        borderColor: '#6F7E8C',
+                        borderColor: '#2196f3',
+                        borderWidth: 2,
                       },
                     },
                   }}
@@ -196,100 +150,38 @@ export function AppointmentForm({ onSubmit, onCancel, initialData }: Appointment
               </Stack>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                label="Durée (minutes)"
-                type="number"
-                value={formData.duree}
-                onChange={handleChange('duree')}
-                fullWidth
-                required
-                inputProps={{ min: 15, step: 15 }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#2196f3',
-                      borderWidth: 2,
+              <Stack spacing={2}>
+                <TextField
+                  label="Heure"
+                  value={formData.time}
+                  onChange={handleChange('time')}
+                  fullWidth
+                  required
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#2196f3',
+                        borderWidth: 2,
+                      },
                     },
-                  },
-                }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                <FormControl fullWidth>
-                  <InputLabel>Type de rendez-vous</InputLabel>
-                  <Select
-                    value={formData.type}
-                    onChange={handleChange('type')}
-                    label="Type de rendez-vous"
-                  >
-                    <MenuItem value="physique">Physique</MenuItem>
-                    <MenuItem value="phone">Téléphone</MenuItem>
-                    <MenuItem value="video">Visioconférence</MenuItem>
-                  </Select>
-                </FormControl>
-
-                <FormControl fullWidth>
-                  <InputLabel>Profil</InputLabel>
-                  <Select
-                    value={formData.profile}
-                    onChange={handleChange('profile')}
-                    label="Profil"
-                    sx={{
-                      '& .MuiSelect-select': {
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1
-                      }
-                    }}
-                  >
-                    <MenuItem value="lead" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      🎯 Lead
-                    </MenuItem>
-                    <MenuItem value="prospect" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      🌱 Prospect
-                    </MenuItem>
-                    <MenuItem value="client" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      ⭐ Client
-                    </MenuItem>
-                    <MenuItem value="staff" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      👥 Staff
-                    </MenuItem>
-                    <MenuItem value="partenaire" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      🤝 Partenaire
-                    </MenuItem>
-                  </Select>
-                </FormControl>
+                  }}
+                />
               </Stack>
             </Grid>
-            {formData.type === 'video' && (
-              <Grid item xs={12}>
-                <TextField
-                  label="Lien de visioconférence"
-                  value={formData.meetLink}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                  fullWidth
-                  sx={{
-                    '& .MuiInputBase-input': {
-                      color: '#4EBAEC',
-                      cursor: 'pointer',
-                    }
-                  }}
-                />
-              </Grid>
-            )}
-            {formData.type === 'physique' && (
-              <Grid item xs={12}>
-                <TextField
-                  label="Lieu"
-                  value={formData.location}
-                  onChange={handleChange('location')}
-                  fullWidth
-                />
-              </Grid>
-            )}
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel>Statut</InputLabel>
+                <Select
+                  value={formData.status}
+                  onChange={handleChange('status')}
+                  label="Statut"
+                >
+                  <MenuItem value="pending">En attente</MenuItem>
+                  <MenuItem value="confirmed">Confirmé</MenuItem>
+                  <MenuItem value="cancelled">Annulé</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
             <Grid item xs={12}>
               <TextField
                 label="Notes"

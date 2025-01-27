@@ -320,57 +320,22 @@ export function Appointments() {
                           }
                           secondary={
                             <Stack spacing={1}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <Typography variant="body1" color="text.primary" sx={{ fontWeight: 500 }}>
-                                  {format(new Date(appointment.date), 'HH:mm')} ({appointment.duree} min)
-                                </Typography>
-                                <Typography variant="body1" color="text.primary" sx={{ 
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 1
-                                }}>
-                                  {getProfileIcon(appointment.profile)} {appointment.nom} {appointment.prenom}
-                                </Typography>
-                              </Box>
-                              
-                              <Stack direction="row" spacing={2} sx={{ color: 'text.secondary' }}>
-                                {appointment.telephone && (
-                                  <Typography variant="body2" component="span">
-                                    📱 {appointment.telephone}
-                                  </Typography>
-                                )}
-                                {appointment.email && (
-                                  <Typography variant="body2" component="span">
-                                    ✉️ {appointment.email}
-                                  </Typography>
-                                )}
-                              </Stack>
-
-                              {appointment.location && (
-                                <Typography variant="body2" color="text.secondary">
-                                  📍 {appointment.location}
+                              <Typography variant="subtitle1" component="span">
+                                {appointment.patient_name}
+                              </Typography>
+                              {appointment.patient_phone && (
+                                <Typography variant="body2" component="span">
+                                  📞 {appointment.patient_phone}
                                 </Typography>
                               )}
-                              
-                              {appointment.type === 'video' && appointment.meetLink && (
-                                <Typography variant="body2" color="text.secondary" sx={{ 
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 0.5,
-                                  '& a': {
-                                    color: '#4EBAEC',
-                                    textDecoration: 'none',
-                                    '&:hover': {
-                                      textDecoration: 'underline'
-                                    }
-                                  }
-                                }}>
-                                  🎥 <a href={appointment.meetLink} target="_blank" rel="noopener noreferrer">
-                                    Rejoindre la visioconférence
-                                  </a>
+                              {appointment.patient_email && (
+                                <Typography variant="body2" component="span">
+                                  ✉️ {appointment.patient_email}
                                 </Typography>
                               )}
-
+                              <Typography variant="body2" color="text.secondary">
+                                🕒 {appointment.time}
+                              </Typography>
                               {appointment.notes && (
                                 <Typography 
                                   variant="body2" 
