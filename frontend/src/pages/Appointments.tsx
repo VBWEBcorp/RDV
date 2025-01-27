@@ -51,18 +51,20 @@ export function Appointments() {
     setShowForm(true);
   };
 
-  const handleSubmit = async (appointmentData: Omit<Appointment, 'id'>) => {
+  const handleSubmit = async (appointmentData: Appointment) => {
     if (selectedAppointment) {
       // Mise à jour d'un rendez-vous existant
       updateAppointment(selectedAppointment.id, {
+        ...selectedAppointment,
         ...appointmentData,
-        id: selectedAppointment.id,
       });
     } else {
       // Création d'un nouveau rendez-vous
       addAppointment({
         ...appointmentData,
         id: uuidv4(),
+        type: appointmentData.type || 'physique',
+        profile: appointmentData.profile || 'prospect',
       });
     }
     setShowForm(false);

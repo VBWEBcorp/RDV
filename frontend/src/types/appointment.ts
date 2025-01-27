@@ -19,6 +19,12 @@ export interface Appointment {
     patient_email: string;
     patient_phone: string;
     status: 'pending' | 'confirmed' | 'cancelled';
+    type?: AppointmentType;
+    duree?: string;
+    nom?: string;
+    prenom?: string;
+    profile?: ProfileType;
+    compteRendu?: string;
     notes?: string;
     created_at?: string;
     updated_at?: string;

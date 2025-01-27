@@ -349,7 +349,11 @@ export function History() {
       {selectedAppointment && (
         <CompteRenduDialog
           open={compteRenduDialogOpen}
-          appointment={selectedAppointment}
+          appointment={{
+            ...selectedAppointment,
+            type: selectedAppointment.type || 'physique',
+            profile: selectedAppointment.profile || 'prospect'
+          }}
           onClose={() => {
             setCompteRenduDialogOpen(false);
             setSelectedAppointment(null);
