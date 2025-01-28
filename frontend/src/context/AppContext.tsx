@@ -33,7 +33,7 @@ const testAppointments: Appointment[] = [
     prenom: 'Sophie',
     email: 'sophie.martin@example.com',
     telephone: '0987654321',
-    notes: 'Suivi projet',
+    notes: 'Suivi mensuel',
     profile: 'client'
   },
   {
@@ -45,24 +45,12 @@ const testAppointments: Appointment[] = [
     prenom: 'Pierre',
     email: 'pierre.bernard@example.com',
     telephone: '0654321987',
-    notes: 'Point mensuel',
-    profile: 'partenaire'
+    profile: 'lead'
   }
 ];
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [appointments, setAppointments] = useState<Appointment[]>(() => {
-    const savedAppointments = localStorage.getItem('appointments');
-    if (savedAppointments) {
-      return JSON.parse(savedAppointments);
-    }
-    // Si pas de rendez-vous sauvegardés, utiliser les données de test
-    return testAppointments;
-  });
-
-  useEffect(() => {
-    localStorage.setItem('appointments', JSON.stringify(appointments));
-  }, [appointments]);
+  const [appointments, setAppointments] = useState<Appointment[]>(testAppointments);
 
   const addAppointment = (appointment: Appointment) => {
     setAppointments(prev => [...prev, appointment]);
@@ -78,15 +66,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setAppointments(prev => prev.filter(apt => apt.id !== id));
   };
 
+  const value = {
+    appointments,
+    addAppointment,
+    updateAppointment,
+    deleteAppointment
+  };
+
   return (
-    <AppContext.Provider
-      value={{
-        appointments,
-        addAppointment,
-        updateAppointment,
-        deleteAppointment,
-      }}
-    >
+    <AppContext.Provider value={value}>
       {children}
     </AppContext.Provider>
   );

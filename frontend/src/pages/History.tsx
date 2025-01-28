@@ -1,85 +1,45 @@
 import React from 'react';
-import { Box, Typography, Grid, Stack, ToggleButtonGroup, ToggleButton, Card, CardContent, Button, Chip, TextField, InputAdornment, IconButton } from '@mui/material';
+import { Box, Typography, Grid, Stack, ToggleButtonGroup, ToggleButton, Card, CardContent, Button, Chip, TextField, InputAdornment, IconButton, FormControlLabel, Switch } from '@mui/material';
 import { useApp } from '../context/AppContext';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Search as SearchIcon, Sort as SortIcon, NoteAdd, Person as PersonIcon } from '@mui/icons-material';
+import { Search as SearchIcon, Sort as SortIcon, NoteAdd, Person as PersonIcon, Check as CheckIcon, Close as CloseIcon } from '@mui/icons-material';
 import { ClientDetailsDialog } from '../components/ClientDetailsDialog';
 import { CompteRenduDialog } from '../components/CompteRenduDialog';
 import { motion } from 'framer-motion';
-import { AppointmentType, Appointment } from '../types';
+import { AppointmentType, Appointment, ProfileType } from '../types';
 
 export function History() {
   const { appointments } = useApp();
-  const [searchTerm, setSearchTerm] = React.useState('');
-  const [sortOrder, setSortOrder] = React.useState('desc');
-  const [selectedProfile, setSelectedProfile] = React.useState('all');
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [sortByRecent, setSortByRecent] = React.useState(true);
+  const [selectedProfile, setSelectedProfile] = React.useState<string>('all');
   const [showClientDetails, setShowClientDetails] = React.useState(false);
   const [selectedAppointment, setSelectedAppointment] = React.useState<Appointment | null>(null);
   const [compteRenduDialogOpen, setCompteRenduDialogOpen] = React.useState(false);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
+    setSearchQuery(event.target.value);
   };
 
   const handleSortChange = () => {
-    setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
+    setSortByRecent(!sortByRecent);
   };
 
-  const handleProfileChange = (event: React.MouseEvent<HTMLElement>, newProfile: string) => {
+  const handleProfileChange = (_event: React.MouseEvent<HTMLElement>, newProfile: string | null) => {
     if (newProfile !== null) {
       setSelectedProfile(newProfile);
     }
   };
 
-  const getAppointmentTypeColor = (type: AppointmentType) => {
-    switch (type) {
-      case 'physique':
-        return '#4caf50';
-      case 'telephone':
-        return '#ff9800';
-      case 'video':
-        return '#4EBAEC';
-      default:
-        return '#9e9e9e';
-    }
-  };
-
-  const getProfileIcon = (profileType: string) => {
-    switch (profileType) {
-      case 'lead':
-        return '🎯';
-      case 'prospect':
-        return '🌱';
-      case 'client':
-        return '⭐';
-      case 'staff':
-        return '👥';
-      case 'partenaire':
-        return '🤝';
-      case 'all':
-        return '👥';
-      default:
-        return '🌱';
-    }
-  };
-
-  const filteredAppointments = appointments
-    .filter(apt => 
-      (apt.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       apt.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       apt.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      (selectedProfile === 'all' || apt.profile === selectedProfile)
-    )
-    .sort((a, b) => {
-      const dateA = new Date(a.date).getTime();
-      const dateB = new Date(b.date).getTime();
-      return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
-    });
-
   const handleOpenClientDetails = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
     setShowClientDetails(true);
+  };
+
+  const handleCloseClientDetails = () => {
+    setShowClientDetails(false);
+    setSelectedAppointment(null);
   };
 
   const handleOpenCompteRendu = (appointment: Appointment) => {
@@ -87,275 +47,273 @@ export function History() {
     setCompteRenduDialogOpen(true);
   };
 
+  const handleCloseCompteRendu = () => {
+    setCompteRenduDialogOpen(false);
+    setSelectedAppointment(null);
+  };
+
+  const filteredAppointments = React.useMemo(() => {
+    return appointments
+      .filter((appointment) => {
+        const searchString = searchQuery.toLowerCase();
+        
+        // Filtre par profil
+        if (selectedProfile !== 'all' && appointment.profile !== selectedProfile) {
+          return false;
+        }
+
+        // Si la recherche est vide, on montre tout
+        if (!searchString) return true;
+
+        // Formatage de la date pour la recherche
+        const appointmentDate = format(new Date(appointment.date), 'dd/MM/yyyy HH:mm', { locale: fr }).toLowerCase();
+        const dateForSearch = format(new Date(appointment.date), 'dd MM yyyy HH mm', { locale: fr }).toLowerCase();
+        
+        // Recherche dans tous les champs pertinents
+        return appointment.nom.toLowerCase().includes(searchString) ||
+          appointment.prenom.toLowerCase().includes(searchString) ||
+          appointment.email.toLowerCase().includes(searchString) ||
+          appointment.telephone.toLowerCase().includes(searchString) ||
+          appointmentDate.includes(searchString) ||
+          dateForSearch.includes(searchString) ||
+          appointment.type.toLowerCase().includes(searchString) ||
+          appointment.profile.toLowerCase().includes(searchString) ||
+          appointment.notes?.toLowerCase().includes(searchString) ||
+          appointment.compteRendu?.toLowerCase().includes(searchString);
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
+        return sortByRecent ? dateB - dateA : dateA - dateB;
+      });
+  }, [appointments, searchQuery, selectedProfile, sortByRecent]);
+
+  const getProfileLabel = (profile: ProfileType): { icon: string; label: string } => {
+    switch (profile) {
+      case 'lead':
+        return { icon: '🎯', label: 'Lead' };
+      case 'prospect':
+        return { icon: '🌱', label: 'Prospect' };
+      case 'client':
+        return { icon: '⭐', label: 'Client' };
+      case 'staff':
+        return { icon: '👤', label: 'Staff' };
+      case 'partenaire':
+        return { icon: '🤝', label: 'Partenaire' };
+      default:
+        return { icon: '👥', label: profile };
+    }
+  };
+
+  const getTypeColor = (type: AppointmentType): string => {
+    const colors: Record<AppointmentType, string> = {
+      physique: '#9e9e9e',
+      telephone: '#2196F3',
+      video: '#4CAF50'
+    };
+    return colors[type] || '#9e9e9e';
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3, ease: 'easeInOut' }}
-    >
-      <Box sx={{ p: { xs: 2, md: 3 } }}>
-        <Typography 
-          variant="h4" 
-          sx={{ 
-            mb: 4,
-            color: '#4EBAEC',
-            fontWeight: 600,
-          }}
-        >
-          Historique des rendez-vous
-        </Typography>
+    <Box sx={{ 
+      display: 'flex', 
+      flexDirection: 'column',
+      gap: 2,
+      width: '100%',
+      p: { xs: 2, sm: 3 },
+    }}>
+      {/* Titre de la page */}
+      <Typography
+        variant="h4"
+        sx={{
+          color: 'primary.main',
+          fontWeight: 600,
+          textAlign: { xs: 'center', sm: 'left' },
+          mb: 2
+        }}
+      >
+        Historique des RDV
+      </Typography>
 
-        <Card
-          elevation={0}
-          sx={{
-            mb: 3,
-            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-            border: '1px solid #e2e8f0',
-            borderRadius: 2,
-            transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-            '&:hover': {
-              transform: 'translateY(-4px)',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-            },
-          }}
+      {/* Filtres de profil */}
+      <Box sx={{ 
+        display: 'flex',
+        flexDirection: { xs: 'column', sm: 'row' },
+        gap: 2,
+        width: '100%',
+      }}>
+        <ToggleButtonGroup
+          value={selectedProfile}
+          exclusive
+          onChange={handleProfileChange}
+          aria-label="profil filter"
+          size="small"
         >
-          <CardContent>
-            <Grid container spacing={3} alignItems="center">
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  placeholder="Rechercher..."
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon sx={{ color: 'text.secondary' }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <ToggleButtonGroup
-                  value={selectedProfile}
-                  exclusive
-                  onChange={handleProfileChange}
-                  aria-label="profil filter"
-                  sx={{ flexWrap: 'wrap', gap: 1 }}
-                >
-                  <ToggleButton 
-                    value="all"
-                    sx={{
-                      borderRadius: 2,
-                      px: 2,
-                      py: 1,
-                      display: 'flex',
-                      gap: 1,
-                      alignItems: 'center',
-                      '&.Mui-selected': {
-                        backgroundColor: 'primary.main',
-                        color: 'white',
-                        '&:hover': {
-                          backgroundColor: 'primary.dark',
-                        },
-                      },
-                    }}
-                  >
-                    {getProfileIcon('all')} Tous
-                  </ToggleButton>
-                  {['lead', 'prospect', 'client', 'staff', 'partenaire'].map((profile) => (
-                    <ToggleButton 
-                      key={profile} 
-                      value={profile}
-                      sx={{
-                        borderRadius: 2,
-                        px: 2,
-                        py: 1,
-                        display: 'flex',
-                        gap: 1,
-                        alignItems: 'center',
-                        '&.Mui-selected': {
-                          backgroundColor: 'primary.main',
-                          color: 'white',
-                          '&:hover': {
-                            backgroundColor: 'primary.dark',
-                          },
-                        },
-                      }}
-                    >
-                      {getProfileIcon(profile)} {profile}
-                    </ToggleButton>
-                  ))}
-                </ToggleButtonGroup>
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  onClick={handleSortChange}
-                  startIcon={<SortIcon />}
-                  sx={{
-                    borderRadius: 2,
-                    height: '100%',
-                    borderColor: 'divider',
-                    '&:hover': {
-                      borderColor: 'primary.main',
-                      backgroundColor: 'rgba(78,186,236,0.08)',
-                    },
-                  }}
-                >
-                  {sortOrder === 'desc' ? 'Plus récent' : 'Plus ancien'}
-                </Button>
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
-
-        <Grid container spacing={2}>
-          {filteredAppointments.map((appointment, index) => (
-            <Grid item xs={12} key={appointment.id || index}>
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-              >
-                <Card
-                  elevation={0}
-                  sx={{
-                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: 2,
-                    transition: 'all 0.2s ease-in-out',
-                    '&:hover': {
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                      cursor: 'pointer',
-                    },
-                  }}
-                  onClick={() => handleOpenClientDetails(appointment)}
-                >
-                  <CardContent>
-                    <Grid container spacing={2} alignItems="center">
-                      <Grid item xs={12} md={3}>
-                        <Typography variant="subtitle1" fontWeight={500}>
-                          {format(new Date(appointment.date), 'PPP', { locale: fr })}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {format(new Date(appointment.date), 'HH:mm')}
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={12} md={4}>
-                        <Typography variant="subtitle1">
-                          {appointment.nom} {appointment.prenom}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {appointment.email}
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={12} md={3}>
-                        <Stack direction="row" spacing={1}>
-                          <Chip
-                            label={appointment.type}
-                            size="small"
-                            sx={{
-                              backgroundColor: `${getAppointmentTypeColor(appointment.type)}20`,
-                              color: getAppointmentTypeColor(appointment.type),
-                              fontWeight: 500,
-                            }}
-                          />
-                          <Chip
-                            label={
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                {getProfileIcon(appointment.profile)} {appointment.profile}
-                              </Box>
-                            }
-                            size="small"
-                            sx={{
-                              backgroundColor: 'rgba(78,186,236,0.1)',
-                              color: 'primary.main',
-                              fontWeight: 500,
-                              '.MuiChip-label': {
-                                px: 1,
-                              },
-                            }}
-                          />
-                        </Stack>
-                      </Grid>
-                      <Grid item xs={12} md={2}>
-                        <Stack direction="row" spacing={1} justifyContent="flex-end">
-                          <IconButton
-                            size="small"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleOpenClientDetails(appointment);
-                            }}
-                            sx={{
-                              backgroundColor: 'rgba(78,186,236,0.1)',
-                              '&:hover': {
-                                backgroundColor: 'rgba(78,186,236,0.2)',
-                              },
-                            }}
-                          >
-                            <PersonIcon sx={{ color: 'primary.main' }} />
-                          </IconButton>
-                          <IconButton
-                            size="small"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleOpenCompteRendu(appointment);
-                            }}
-                            sx={{
-                              backgroundColor: 'rgba(78,186,236,0.1)',
-                              '&:hover': {
-                                backgroundColor: 'rgba(78,186,236,0.2)',
-                              },
-                            }}
-                          >
-                            <NoteAdd sx={{ color: 'primary.main' }} />
-                          </IconButton>
-                        </Stack>
-                      </Grid>
-                    </Grid>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </Grid>
-          ))}
-        </Grid>
+          <ToggleButton value="all">Tous</ToggleButton>
+          <ToggleButton value="lead">
+            <span>🎯</span> Lead
+          </ToggleButton>
+          <ToggleButton value="prospect">
+            <span>🌱</span> Prospect
+          </ToggleButton>
+          <ToggleButton value="client">
+            <span>⭐</span> Client
+          </ToggleButton>
+          <ToggleButton value="staff">
+            <span>👤</span> Staff
+          </ToggleButton>
+          <ToggleButton value="partenaire">
+            <span>🤝</span> Partenaire
+          </ToggleButton>
+        </ToggleButtonGroup>
       </Box>
-      {selectedAppointment && (
-        <ClientDetailsDialog
-          client={{
-            id: selectedAppointment.id,
-            nom: selectedAppointment.nom,
-            prenom: selectedAppointment.prenom,
-            email: selectedAppointment.email,
-            telephone: selectedAppointment.telephone,
+
+      {/* Contrôles de recherche et tri */}
+      <Box sx={{ 
+        display: 'flex',
+        flexDirection: { xs: 'column', sm: 'row' },
+        gap: 2,
+        width: '100%',
+      }}>
+        <TextField
+          placeholder="Rechercher..."
+          value={searchQuery}
+          onChange={handleSearchChange}
+          variant="outlined"
+          size="small"
+          fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
           }}
-          appointment={{
-            notes: selectedAppointment.notes,
-            compteRendu: selectedAppointment.compteRendu
-          }}
-          open={showClientDetails}
-          onClose={() => {
-            setShowClientDetails(false);
-            setSelectedAppointment(null);
+          sx={{ flexGrow: 1 }}
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={sortByRecent}
+              onChange={handleSortChange}
+              color="primary"
+            />
+          }
+          label="Plus récents en premier"
+          sx={{ 
+            minWidth: 'fit-content',
+            m: 0,
+            alignItems: 'center',
           }}
         />
-      )}
+      </Box>
+
+      <Grid container spacing={2}>
+        {filteredAppointments.map((appointment) => (
+          <Grid item xs={12} key={appointment.id}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card>
+                <CardContent>
+                  <Stack spacing={2}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                      <Typography variant="h6">
+                        {appointment.prenom} {appointment.nom}
+                      </Typography>
+                      <Stack direction="row" spacing={1}>
+                        <Chip
+                          label={
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                              {getProfileLabel(appointment.profile as ProfileType).icon}{' '}
+                              {getProfileLabel(appointment.profile as ProfileType).label}
+                            </Box>
+                          }
+                          size="small"
+                          sx={{
+                            bgcolor: 'white',
+                            border: 1,
+                            borderColor: 'divider',
+                            '& .MuiChip-label': {
+                              display: 'flex',
+                              alignItems: 'center',
+                            },
+                          }}
+                        />
+                        <Chip
+                          label={appointment.type}
+                          size="small"
+                          sx={{
+                            bgcolor: getTypeColor(appointment.type),
+                            color: 'white',
+                          }}
+                        />
+                      </Stack>
+                    </Stack>
+
+                    <Typography variant="body2" color="text.secondary">
+                      {format(new Date(appointment.date), 'EEEE d MMMM yyyy à HH:mm', {
+                        locale: fr,
+                      })}
+                    </Typography>
+
+                    <Stack direction="row" spacing={1}>
+                      <Button
+                        startIcon={<PersonIcon />}
+                        variant="outlined"
+                        size="small"
+                        onClick={() => handleOpenClientDetails(appointment)}
+                      >
+                        Détails client
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => handleOpenCompteRendu(appointment)}
+                        sx={{ 
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1,
+                          color: 'primary.main',
+                          borderColor: 'primary.main',
+                          '&:hover': {
+                            borderColor: 'primary.dark',
+                            backgroundColor: 'primary.50',
+                          }
+                        }}
+                      >
+                        Compte rendu
+                        {appointment.compteRendu ? (
+                          <CheckIcon sx={{ fontSize: 16, color: 'primary.main' }} />
+                        ) : (
+                          <CloseIcon sx={{ fontSize: 16, color: 'primary.main' }} />
+                        )}
+                      </Button>
+                    </Stack>
+                  </Stack>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </Grid>
+        ))}
+      </Grid>
+
       {selectedAppointment && (
-        <CompteRenduDialog
-          open={compteRenduDialogOpen}
-          appointment={selectedAppointment}
-          onClose={() => {
-            setCompteRenduDialogOpen(false);
-            setSelectedAppointment(null);
-          }}
-        />
+        <>
+          <ClientDetailsDialog
+            open={showClientDetails}
+            onClose={handleCloseClientDetails}
+            appointment={selectedAppointment}
+          />
+          <CompteRenduDialog
+            open={compteRenduDialogOpen}
+            onClose={handleCloseCompteRendu}
+            appointment={selectedAppointment}
+          />
+        </>
       )}
-    </motion.div>
+    </Box>
   );
 }

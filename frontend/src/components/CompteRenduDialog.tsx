@@ -5,28 +5,30 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  TextField,
+  Typography,
   Box,
+  TextField,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Typography,
-  Divider
+  Stack,
 } from '@mui/material';
+import { Appointment, ProfileType } from '../types';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { useApp } from '../context/AppContext';
-import { Appointment } from '../types';
 
 interface CompteRenduDialogProps {
-  appointment: Appointment;
   open: boolean;
   onClose: () => void;
+  appointment: Appointment;
 }
 
-export function CompteRenduDialog({ appointment, open, onClose }: CompteRenduDialogProps) {
+export function CompteRenduDialog({ open, onClose, appointment }: CompteRenduDialogProps) {
   const { updateAppointment } = useApp();
   const [compteRendu, setCompteRendu] = React.useState(appointment.compteRendu || '');
-  const [profile, setProfile] = React.useState(appointment.profile || 'prospect');
+  const [profile, setProfile] = React.useState<ProfileType>(appointment.profile);
 
   const handleSave = () => {
     updateAppointment(appointment.id, {
@@ -37,44 +39,24 @@ export function CompteRenduDialog({ appointment, open, onClose }: CompteRenduDia
     onClose();
   };
 
-  const getProfileIcon = (profileType: string) => {
-    switch (profileType) {
-      case 'lead':
-        return '🎯';
-      case 'prospect':
-        return '🌱';
-      case 'client':
-        return '⭐';
-      case 'staff':
-        return '👥';
-      case 'partenaire':
-        return '🤝';
-      default:
-        return '🌱';
-    }
-  };
-
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ pb: 1 }}>Détails du rendez-vous</DialogTitle>
+      <DialogTitle>
+        <Typography variant="h6">
+          Compte rendu - {appointment.prenom} {appointment.nom}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {format(new Date(appointment.date), 'EEEE d MMMM yyyy à HH:mm', { locale: fr })}
+        </Typography>
+      </DialogTitle>
       <DialogContent>
-        <Box sx={{ mt: 2, mb: 3 }}>
-          <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-            Profil du contact
-          </Typography>
-          <FormControl fullWidth size="small">
+        <Stack spacing={3} sx={{ mt: 2 }}>
+          <FormControl fullWidth>
             <InputLabel>Profil</InputLabel>
             <Select
               value={profile}
-              onChange={(e) => setProfile(e.target.value)}
               label="Profil"
-              sx={{
-                '& .MuiSelect-select': {
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1
-                }
-              }}
+              onChange={(e) => setProfile(e.target.value as ProfileType)}
             >
               <MenuItem value="lead" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 🎯 Lead
@@ -86,46 +68,27 @@ export function CompteRenduDialog({ appointment, open, onClose }: CompteRenduDia
                 ⭐ Client
               </MenuItem>
               <MenuItem value="staff" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                👥 Staff
+                👤 Staff
               </MenuItem>
               <MenuItem value="partenaire" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 🤝 Partenaire
               </MenuItem>
             </Select>
           </FormControl>
-        </Box>
 
-        <Divider sx={{ my: 2 }} />
-
-        <Box sx={{ mt: 2 }}>
-          <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-            Compte-rendu
-          </Typography>
           <TextField
+            label="Compte rendu"
             multiline
-            rows={4}
+            rows={6}
+            fullWidth
             value={compteRendu}
             onChange={(e) => setCompteRendu(e.target.value)}
-            fullWidth
-            placeholder="Saisissez votre compte-rendu..."
-            size="small"
           />
-        </Box>
+        </Stack>
       </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={onClose} variant="outlined">
-          Annuler
-        </Button>
-        <Button 
-          onClick={handleSave} 
-          variant="contained"
-          sx={{ 
-            bgcolor: '#4EBAEC',
-            '&:hover': {
-              bgcolor: '#3A9BC8'
-            }
-          }}
-        >
+      <DialogActions>
+        <Button onClick={onClose}>Annuler</Button>
+        <Button onClick={handleSave} variant="contained" color="primary">
           Enregistrer
         </Button>
       </DialogActions>

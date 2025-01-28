@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Grid, Card, CardContent, Stack, Fab, ToggleButtonGroup, ToggleButton, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, Chip, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@mui/material';
+import { Box, Typography, Grid, Card, CardContent, Stack, Fab, ToggleButtonGroup, ToggleButton, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, Chip, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Paper, Link } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useApp } from '../context/AppContext';
 import { Calendar } from '../components/Calendar';
@@ -75,7 +75,7 @@ export function Appointments() {
     }
   };
 
-  const getAppointmentTypeColor = (type) => {
+  const getTypeColor = (type) => {
     switch (type) {
       case 'physical':
         return '#4caf50';
@@ -88,33 +88,20 @@ export function Appointments() {
     }
   };
 
-  const getAppointmentTypeLabel = (type) => {
-    switch (type) {
-      case 'physical':
-        return 'Physique';
-      case 'phone':
-        return 'Téléphone';
-      case 'video':
-        return 'Vidéo';
-      default:
-        return type;
-    }
-  };
-
-  const getProfileIcon = (profile: string) => {
+  const getProfileLabel = (profile: string) => {
     switch (profile) {
       case 'lead':
-        return '🎯';
+        return { icon: '🎯', label: 'Lead' };
       case 'prospect':
-        return '🌱';
+        return { icon: '🌱', label: 'Prospect' };
       case 'client':
-        return '⭐';
+        return { icon: '⭐', label: 'Client' };
       case 'staff':
-        return '👥';
+        return { icon: '👥', label: 'Staff' };
       case 'partenaire':
-        return '🤝';
+        return { icon: '🤝', label: 'Partenaire' };
       default:
-        return '';
+        return { icon: '', label: profile };
     }
   };
 
@@ -292,134 +279,259 @@ export function Appointments() {
         </Grid>
 
         {viewMode === 'calendar' ? (
-          <Calendar appointments={appointments} onSelectEvent={handleSelectEvent} />
+          <Calendar 
+            appointments={weekAppointments} 
+            onEditAppointment={handleSelectEvent}
+          />
         ) : (
-          <List sx={{ 
-            bgcolor: 'background.paper',
-            borderRadius: 2,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-          }}>
-            {futureAppointments.map((appointment) => (
-              <ListItem
-                key={appointment.id}
-                sx={{
-                  borderBottom: '1px solid rgba(0,0,0,0.05)',
-                  '&:last-child': {
-                    borderBottom: 'none',
-                  },
-                  py: 2,
+          <Stack spacing={2} sx={{ mt: 4 }}>
+            {futureAppointments.length === 0 ? (
+              <Paper 
+                elevation={0}
+                sx={{ 
+                  p: 3,
+                  borderRadius: 2,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  bgcolor: 'background.paper',
+                  textAlign: 'center'
                 }}
               >
-                <ListItemText
-                  primary={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                      <Typography variant="subtitle1" fontWeight="600">
-                        {format(new Date(appointment.date), 'EEEE d MMMM yyyy', { locale: fr })}
-                      </Typography>
-                      <Chip
-                        label={getAppointmentTypeLabel(appointment.type)}
-                        size="small"
-                        sx={{
-                          backgroundColor: getAppointmentTypeColor(appointment.type),
-                          color: 'white',
-                          fontWeight: 500,
-                        }}
-                      />
-                    </Box>
-                  }
-                  secondary={
-                    <Stack spacing={1}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Typography variant="body1" color="text.primary" sx={{ fontWeight: 500 }}>
-                          {format(new Date(appointment.date), 'HH:mm')} ({appointment.duree} min)
-                        </Typography>
-                        <Typography variant="body1" color="text.primary" sx={{ 
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 1
-                        }}>
-                          {getProfileIcon(appointment.profile)} {appointment.nom} {appointment.prenom}
-                        </Typography>
-                      </Box>
-                      
-                      <Stack direction="row" spacing={2} sx={{ color: 'text.secondary' }}>
-                        {appointment.telephone && (
-                          <Typography variant="body2" component="span">
-                            📱 {appointment.telephone}
-                          </Typography>
-                        )}
-                        {appointment.email && (
-                          <Typography variant="body2" component="span">
-                            ✉️ {appointment.email}
-                          </Typography>
-                        )}
-                      </Stack>
-
-                      {appointment.location && (
-                        <Typography variant="body2" color="text.secondary">
-                          📍 {appointment.location}
-                        </Typography>
-                      )}
-                      
-                      {appointment.type === 'video' && appointment.meetLink && (
-                        <Typography variant="body2" color="text.secondary" sx={{ 
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 0.5,
-                          '& a': {
-                            color: '#4EBAEC',
-                            textDecoration: 'none',
-                            '&:hover': {
-                              textDecoration: 'underline'
-                            }
-                          }
-                        }}>
-                          🎥 <a href={appointment.meetLink} target="_blank" rel="noopener noreferrer">
-                            Rejoindre la visioconférence
-                          </a>
-                        </Typography>
-                      )}
-
-                      {appointment.notes && (
-                        <Typography 
-                          variant="body2" 
-                          color="text.secondary"
-                          sx={{
-                            mt: 1,
-                            p: 1.5,
-                            backgroundColor: 'rgba(0,0,0,0.02)',
-                            borderRadius: 1,
-                            borderLeft: '3px solid #4EBAEC'
-                          }}
-                        >
-                          📝 {appointment.notes}
-                        </Typography>
-                      )}
-                    </Stack>
-                  }
-                />
-                <ListItemSecondaryAction>
-                  <IconButton 
-                    onClick={() => handleSelectEvent(appointment)}
-                    sx={{ color: '#4EBAEC' }}
+                <Typography color="text.secondary" sx={{ fontStyle: 'italic', fontSize: '0.9rem' }}>
+                  Aucun rendez-vous à venir
+                </Typography>
+              </Paper>
+            ) : (
+              <Paper 
+                elevation={0}
+                sx={{ 
+                  p: 2,
+                  borderRadius: 2,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  bgcolor: 'background.paper',
+                }}
+              >
+                <Typography 
+                  variant="h6" 
+                  sx={{ 
+                    mb: 2, 
+                    fontWeight: 500,
+                    color: 'text.primary',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                  }}
+                >
+                  Prochains rendez-vous
+                  <Typography 
+                    component="span" 
+                    variant="body2" 
+                    sx={{ 
+                      color: 'text.secondary',
+                      fontWeight: 400,
+                    }}
                   >
-                    <Edit />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
-            {futureAppointments.length === 0 && (
-              <ListItem>
-                <ListItemText
-                  primary={
-                    <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-                      Aucun rendez-vous à venir
-                    </Typography>
-                  }
-                />
-              </ListItem>
+                    ({futureAppointments.length} RDV)
+                  </Typography>
+                </Typography>
+
+                <Stack spacing={1}>
+                  {futureAppointments.map((appointment) => (
+                    <Card 
+                      key={appointment.id}
+                      sx={{ 
+                        borderRadius: 1.5,
+                        boxShadow: 'none',
+                        border: '1px solid',
+                        borderColor: `${getTypeColor(appointment.type)}30`,
+                        background: `${getTypeColor(appointment.type)}08`,
+                        transition: 'background-color 0.2s ease-in-out',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          background: `${getTypeColor(appointment.type)}12`,
+                        },
+                      }}
+                      onClick={() => handleSelectEvent(appointment)}
+                    >
+                      <CardContent sx={{ py: 1, px: 2, '&:last-child': { pb: 1 } }}>
+                        <Grid container spacing={1} alignItems="center">
+                          <Grid item xs={12} md={3}>
+                            <Stack spacing={0.5}>
+                              <Typography
+                                variant="subtitle2"
+                                sx={{
+                                  color: 'text.primary',
+                                  fontWeight: 600,
+                                  textTransform: 'capitalize',
+                                  fontSize: '0.95rem',
+                                }}
+                              >
+                                {format(new Date(appointment.date), 'EEEE d MMMM', { locale: fr })}
+                              </Typography>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Typography 
+                                  variant="body1" 
+                                  sx={{ 
+                                    fontWeight: 600,
+                                    color: getTypeColor(appointment.type),
+                                    fontSize: '1.1rem',
+                                  }}
+                                >
+                                  {format(new Date(appointment.date), 'HH:mm')}
+                                </Typography>
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: getTypeColor(appointment.type),
+                                    opacity: 0.9,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 0.5,
+                                    fontSize: '0.85rem',
+                                  }}
+                                >
+                                  {appointment.type === 'video' && '🎥'}
+                                  {appointment.type === 'phone' && '📱'}
+                                  {appointment.type === 'physical' && '🏥'}
+                                  {appointment.duree} min
+                                </Typography>
+                              </Box>
+                            </Stack>
+                          </Grid>
+
+                          <Grid item xs={12} md={9}>
+                            <Stack spacing={0.5}>
+                              <Box sx={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: 1,
+                                color: 'text.primary',
+                              }}>
+                                {getProfileLabel(appointment.profile).icon}
+                                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                  {appointment.prenom} {appointment.nom}
+                                </Typography>
+                              </Box>
+
+                              <Stack 
+                                direction="row" 
+                                spacing={2} 
+                                sx={{ 
+                                  flexWrap: 'wrap', 
+                                  gap: 1,
+                                  '& > a': {
+                                    minWidth: 'fit-content'
+                                  }
+                                }}
+                              >
+                                {appointment.email && (
+                                  <Link
+                                    href={`mailto:${appointment.email}`}
+                                    sx={{
+                                      color: 'text.secondary',
+                                      textDecoration: 'none',
+                                      fontSize: '0.875rem',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 0.5,
+                                      '&:hover': {
+                                        color: getTypeColor(appointment.type),
+                                      }
+                                    }}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    ✉️ {appointment.email}
+                                  </Link>
+                                )}
+                                {appointment.telephone && (
+                                  <Link
+                                    href={`tel:${appointment.telephone}`}
+                                    sx={{
+                                      color: 'text.secondary',
+                                      textDecoration: 'none',
+                                      fontSize: '0.875rem',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 0.5,
+                                      '&:hover': {
+                                        color: getTypeColor(appointment.type),
+                                      }
+                                    }}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    📱 {appointment.telephone}
+                                  </Link>
+                                )}
+                                {appointment.location && (
+                                  <Link
+                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(appointment.location)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    sx={{
+                                      color: 'text.secondary',
+                                      textDecoration: 'none',
+                                      fontSize: '0.875rem',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 0.5,
+                                      '&:hover': {
+                                        color: getTypeColor(appointment.type),
+                                      }
+                                    }}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    📍 {appointment.location}
+                                  </Link>
+                                )}
+                                {appointment.meetLink && (
+                                  <Link
+                                    href={appointment.meetLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    sx={{
+                                      color: 'text.secondary',
+                                      textDecoration: 'none',
+                                      fontSize: '0.875rem',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 0.5,
+                                      '&:hover': {
+                                        color: getTypeColor(appointment.type),
+                                      }
+                                    }}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    🔗 Lien visio
+                                  </Link>
+                                )}
+                              </Stack>
+                            </Stack>
+                          </Grid>
+                        </Grid>
+
+                        {appointment.notes && (
+                          <Typography 
+                            variant="body2" 
+                            color="text.secondary"
+                            sx={{
+                              mt: 1,
+                              pt: 1,
+                              borderTop: '1px solid',
+                              borderColor: 'divider',
+                              fontSize: '0.875rem'
+                            }}
+                          >
+                            📝 {appointment.notes}
+                          </Typography>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </Stack>
+              </Paper>
             )}
-          </List>
+          </Stack>
         )}
       </Box>
 
@@ -430,7 +542,7 @@ export function Appointments() {
             setShowForm(false);
             setSelectedAppointment(null);
           }}
-          initialData={selectedAppointment}
+          initialData={selectedAppointment || undefined}
         />
       )}
 

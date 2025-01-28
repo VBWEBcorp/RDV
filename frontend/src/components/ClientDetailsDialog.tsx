@@ -8,45 +8,26 @@ import {
   Typography,
   Box,
   Stack,
-  Chip,
+  Link,
 } from '@mui/material';
-import { Client } from '../types';
+import { Appointment } from '../types';
 import { useApp } from '../context/AppContext';
+import { useLocation } from 'react-router-dom';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 interface ClientDetailsDialogProps {
-  client: Client;
-  appointment: {
-    notes?: string;
-    compteRendu?: string;
-  };
   open: boolean;
   onClose: () => void;
+  appointment: Appointment;
 }
 
-export function ClientDetailsDialog({ client, appointment, open, onClose }: ClientDetailsDialogProps) {
+export function ClientDetailsDialog({ open, onClose, appointment }: ClientDetailsDialogProps) {
+  const location = useLocation();
   const { appointments } = useApp();
-  
-  // Calculer les statistiques des rendez-vous
-  const clientStats = React.useMemo(() => {
-    const clientAppointments = appointments.filter(
-      apt => apt.nom === client.nom && apt.prenom === client.prenom
-    );
-    
-    const lastAppointment = clientAppointments.length > 0
-      ? clientAppointments.reduce((latest, current) => 
-          new Date(current.date) > new Date(latest.date) ? current : latest
-        )
-      : null;
+  const isCRMPage = location.pathname === '/crm';
 
-    return {
-      total: clientAppointments.length,
-      lastAppointment
-    };
-  }, [appointments, client]);
-
-  const getProfileIcon = (profile: string) => {
+  const getProfileLabel = (profile: string): { icon: string; label: string } => {
     switch (profile) {
       case 'lead':
         return { icon: '🎯', label: 'Lead' };
@@ -55,19 +36,54 @@ export function ClientDetailsDialog({ client, appointment, open, onClose }: Clie
       case 'client':
         return { icon: '⭐', label: 'Client' };
       case 'staff':
-        return { icon: '👥', label: 'Staff' };
+        return { icon: '👤', label: 'Staff' };
       case 'partenaire':
         return { icon: '🤝', label: 'Partenaire' };
       default:
-        return { icon: '🌱', label: 'Prospect' };
+        return { icon: '👥', label: profile };
     }
   };
+
+  const getTypeLabel = (type: string): string => {
+    switch (type) {
+      case 'consultation':
+        return 'Consultation';
+      case 'formation':
+        return 'Formation';
+      case 'réunion':
+        return 'Réunion';
+      default:
+        return type;
+    }
+  };
+
+  const getTypeColor = (type: string): string => {
+    switch (type) {
+      case 'consultation':
+        return '#2196f3';
+      case 'formation':
+        return '#4caf50';
+      case 'réunion':
+        return '#ff9800';
+      default:
+        return '#9e9e9e';
+    }
+  };
+
+  const clientAppointments = appointments.filter(
+    apt => apt.email === appointment.email
+  );
+
+  const totalAppointments = clientAppointments.length;
+  const lastAppointmentDate = clientAppointments
+    .map(apt => new Date(apt.date))
+    .sort((a, b) => b.getTime() - a.getTime())[0];
 
   return (
     <Dialog 
       open={open} 
-      onClose={onClose}
-      maxWidth="sm"
+      onClose={onClose} 
+      maxWidth="sm" 
       fullWidth
       PaperProps={{
         sx: {
@@ -76,89 +92,297 @@ export function ClientDetailsDialog({ client, appointment, open, onClose }: Clie
         },
       }}
     >
-      <DialogTitle sx={{ pb: 0 }}>
+      <DialogTitle>
         <Stack spacing={1}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            {getProfileIcon(client.profile).icon}
-            <Typography variant="h5" component="span" fontWeight="600">
-              {client.nom} {client.prenom}
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 1.5 
+          }}>
+            <Box sx={{ 
+              width: 40, 
+              height: 40, 
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              bgcolor: `${getTypeColor(appointment.type)}15`,
+              color: getTypeColor(appointment.type),
+              fontSize: '1.5rem'
+            }}>
+              {getProfileLabel(appointment.profile).icon}
+            </Box>
+            <Typography variant="h5" sx={{ fontWeight: 600 }}>
+              {appointment.prenom} {appointment.nom}
             </Typography>
           </Box>
-          <Typography variant="subtitle1" color="text.secondary" sx={{ 
-            display: 'flex',
-            alignItems: 'center',
-            gap: 0.5,
-            color: '#94A3B8',
-            fontSize: '0.875rem'
-          }}>
-            {getProfileIcon(client.profile).label}
-          </Typography>
         </Stack>
       </DialogTitle>
-      <DialogContent>
-        <Stack spacing={3} sx={{ pt: 1 }}>
-          <Box>
-            <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 500 }}>
-              Informations personnelles
+
+      <DialogContent sx={{ bgcolor: '#fafafa' }}>
+        <Stack spacing={2} sx={{ pt: 1 }}>
+          <Box sx={{ 
+            bgcolor: 'white', 
+            p: 2.5, 
+            borderRadius: 2,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+          }}>
+            <Typography 
+              variant="h6" 
+              color="primary" 
+              sx={{ 
+                fontWeight: 600,
+                fontSize: '1rem',
+                mb: 2,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1
+              }}
+            >
+              👤 Contact
             </Typography>
-            <Typography variant="h6" sx={{ mt: 1 }}>
-              {client.nom} {client.prenom}
-            </Typography>
-            <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
-              <Chip
-                label={`${clientStats.total} rendez-vous`}
-                size="small"
-                sx={{
-                  backgroundColor: 'rgba(78,186,236,0.1)',
-                  color: '#4EBAEC',
-                  fontWeight: 500,
-                }}
-              />
-              {clientStats.lastAppointment && (
-                <Chip
-                  label={`Dernier RDV: ${format(new Date(clientStats.lastAppointment.date), 'dd/MM/yyyy', { locale: fr })}`}
-                  size="small"
+            <Stack spacing={1.5}>
+              {appointment.email && (
+                <Link
+                  href={`mailto:${appointment.email}`}
                   sx={{
-                    backgroundColor: 'rgba(78,186,236,0.1)',
-                    color: '#4EBAEC',
-                    fontWeight: 500,
+                    color: 'text.primary',
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    p: 1,
+                    borderRadius: 1,
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      color: 'text.primary',
+                      bgcolor: 'rgba(0,0,0,0.02)'
+                    }
                   }}
-                />
+                >
+                  <Typography variant="body2">
+                    ✉️ {appointment.email}
+                  </Typography>
+                </Link>
+              )}
+              {appointment.telephone && (
+                <Link
+                  href={`tel:${appointment.telephone}`}
+                  sx={{
+                    color: 'text.primary',
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    p: 1,
+                    borderRadius: 1,
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      color: 'text.primary',
+                      bgcolor: 'rgba(0,0,0,0.02)'
+                    }
+                  }}
+                >
+                  <Typography variant="body2">
+                    📱 {appointment.telephone}
+                  </Typography>
+                </Link>
               )}
             </Stack>
           </Box>
 
-          <Box>
-            <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 500 }}>
-              Contact
+          <Box sx={{ 
+            bgcolor: 'white', 
+            p: 2.5, 
+            borderRadius: 2,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+          }}>
+            <Typography 
+              variant="h6" 
+              color="primary" 
+              sx={{ 
+                fontWeight: 600,
+                fontSize: '1rem',
+                mb: 2,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1
+              }}
+            >
+              📅 Rendez-vous
             </Typography>
-            <Stack spacing={1} sx={{ mt: 1 }}>
-              {client.telephone && (
-                <Typography variant="body1">
-                  📱 {client.telephone}
+            <Stack spacing={1.5}>
+              <Box sx={{ 
+                display: 'flex', 
+                gap: 3, 
+                flexWrap: 'wrap'
+              }}>
+                <Typography variant="body2" sx={{ 
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  minWidth: '180px'
+                }}>
+                  🗓️ {format(new Date(appointment.date), 'EEEE d MMMM yyyy', { locale: fr })}
                 </Typography>
+                <Typography variant="body2" sx={{ 
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1
+                }}>
+                  ⏰ {format(new Date(appointment.date), 'HH:mm')} ({appointment.duree} min)
+                </Typography>
+              </Box>
+              {appointment.location && (
+                <Link
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(appointment.location)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{
+                    color: 'text.primary',
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    p: 1,
+                    borderRadius: 1,
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      color: 'text.primary',
+                      bgcolor: 'rgba(0,0,0,0.02)'
+                    }
+                  }}
+                >
+                  <Typography variant="body2">
+                    📍 {appointment.location}
+                  </Typography>
+                </Link>
               )}
-              {client.email && (
-                <Typography variant="body1">
-                  ✉️ {client.email}
+              {appointment.meetLink && (
+                <Link
+                  href={appointment.meetLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{
+                    color: 'text.primary',
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    p: 1,
+                    borderRadius: 1,
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      color: 'text.primary',
+                      bgcolor: 'rgba(0,0,0,0.02)'
+                    }
+                  }}
+                >
+                  <Typography variant="body2">
+                    🔗 Lien visioconférence
+                  </Typography>
+                </Link>
+              )}
+            </Stack>
+          </Box>
+
+          <Box sx={{ 
+            bgcolor: 'white', 
+            p: 2.5, 
+            borderRadius: 2,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+          }}>
+            <Typography 
+              variant="h6" 
+              color="primary" 
+              sx={{ 
+                fontWeight: 600,
+                fontSize: '1rem',
+                mb: 2,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1
+              }}
+            >
+              📊 Historique
+            </Typography>
+            <Stack spacing={1.5}>
+              <Typography variant="body2">
+                {totalAppointments} rendez-vous au total
+              </Typography>
+              {lastAppointmentDate && (
+                <Typography variant="body2">
+                  Dernier rendez-vous : {format(lastAppointmentDate, 'PPP', { locale: fr })}
                 </Typography>
               )}
             </Stack>
           </Box>
 
-          {appointment.compteRendu && (
-            <Box>
-              <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 500 }}>
-                Compte rendu du dernier rendez-vous
+          {appointment.notes && (
+            <Box sx={{ 
+              bgcolor: 'white', 
+              p: 2.5, 
+              borderRadius: 2,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+            }}>
+              <Typography 
+                variant="h6" 
+                color="primary" 
+                sx={{ 
+                  fontWeight: 600,
+                  fontSize: '1rem',
+                  mb: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1
+                }}
+              >
+                📝 Notes
               </Typography>
               <Typography 
-                variant="body1" 
+                variant="body2" 
                 sx={{ 
-                  mt: 1,
-                  p: 2,
-                  backgroundColor: 'rgba(0,0,0,0.02)',
+                  p: 1.5,
+                  bgcolor: 'rgba(0,0,0,0.02)',
                   borderRadius: 1,
-                  borderLeft: '3px solid #4EBAEC'
+                  whiteSpace: 'pre-wrap',
+                  lineHeight: 1.6
+                }}
+              >
+                {appointment.notes}
+              </Typography>
+            </Box>
+          )}
+
+          {appointment.compteRendu && (
+            <Box sx={{ 
+              bgcolor: 'white', 
+              p: 2.5, 
+              borderRadius: 2,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+            }}>
+              <Typography 
+                variant="h6" 
+                color="primary" 
+                sx={{ 
+                  fontWeight: 600,
+                  fontSize: '1rem',
+                  mb: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1
+                }}
+              >
+                📋 Compte rendu
+              </Typography>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  p: 1.5,
+                  bgcolor: 'rgba(0,0,0,0.02)',
+                  borderRadius: 1,
+                  whiteSpace: 'pre-wrap',
+                  lineHeight: 1.6
                 }}
               >
                 {appointment.compteRendu}
@@ -167,16 +391,17 @@ export function ClientDetailsDialog({ client, appointment, open, onClose }: Clie
           )}
         </Stack>
       </DialogContent>
+
       <DialogActions sx={{ p: 2, pt: 0 }}>
         <Button 
           onClick={onClose}
           variant="outlined"
           sx={{ 
-            borderColor: '#4EBAEC',
-            color: '#4EBAEC',
+            borderColor: 'primary.main',
+            color: 'primary.main',
             '&:hover': {
-              borderColor: '#3A9BC8',
-              backgroundColor: 'rgba(78,186,236,0.05)',
+              borderColor: 'primary.dark',
+              bgcolor: 'primary.50',
             }
           }}
         >
