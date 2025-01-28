@@ -14,18 +14,16 @@ export interface Client {
 export interface Appointment {
     id: string;
     date: string;
-    time: string;
-    patient_name: string;
-    patient_email: string;
-    patient_phone: string;
-    status: 'pending' | 'confirmed' | 'cancelled';
-    type?: AppointmentType;
-    duree?: string;
-    nom?: string;
-    prenom?: string;
-    profile?: ProfileType;
-    compteRendu?: string;
+    duree: number;
+    type: AppointmentType;
+    nom: string;
+    prenom: string;
+    email: string;
+    telephone: string;
+    profile: ProfileType;
     notes?: string;
+    compteRendu?: string;
+    status?: 'pending' | 'confirmed' | 'cancelled';
     created_at?: string;
     updated_at?: string;
 }

@@ -21,9 +21,9 @@ exports.createAppointment = async (req, res) => {
     // Envoyer un email de confirmation
     await transporter.sendMail({
       from: process.env.SMTP_USER,
-      to: appointment.patientEmail,
+      to: appointment.email,
       subject: 'Confirmation de rendez-vous',
-      text: `Votre rendez-vous a été programmé pour le ${appointment.date} à ${appointment.time}.`
+      text: `Votre rendez-vous a été confirmé pour le ${appointment.date}`
     });
 
     res.status(201).json(appointment);
@@ -33,11 +33,9 @@ exports.createAppointment = async (req, res) => {
 };
 
 // Obtenir tous les rendez-vous
-exports.getAllAppointments = async (req, res) => {
+exports.getAppointments = async (req, res) => {
   try {
-    const appointments = await Appointment.findAll({
-      order: [['date', 'ASC'], ['time', 'ASC']]
-    });
+    const appointments = await Appointment.findAll();
     res.json(appointments);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -60,20 +58,22 @@ exports.getAppointmentById = async (req, res) => {
 // Mettre à jour un rendez-vous
 exports.updateAppointment = async (req, res) => {
   try {
-    const appointment = await Appointment.findByPk(req.params.id);
-    if (!appointment) {
-      return res.status(404).json({ message: 'Rendez-vous non trouvé' });
-    }
+    const { id } = req.params;
+    const appointment = await Appointment.findByPk(id);
     
+    if (!appointment) {
+      return res.status(404).json({ error: 'Rendez-vous non trouvé' });
+    }
+
     await appointment.update(req.body);
     
-    // Envoyer un email de mise à jour si le statut a changé
-    if (req.body.status) {
+    // Envoyer un email de mise à jour si nécessaire
+    if (req.body.date) {
       await transporter.sendMail({
         from: process.env.SMTP_USER,
-        to: appointment.patientEmail,
-        subject: 'Mise à jour de votre rendez-vous',
-        text: `Le statut de votre rendez-vous du ${appointment.date} à ${appointment.time} a été mis à jour : ${req.body.status}`
+        to: appointment.email,
+        subject: 'Mise à jour du rendez-vous',
+        text: `Votre rendez-vous a été mis à jour pour le ${appointment.date}`
       });
     }
 
@@ -86,13 +86,15 @@ exports.updateAppointment = async (req, res) => {
 // Supprimer un rendez-vous
 exports.deleteAppointment = async (req, res) => {
   try {
-    const appointment = await Appointment.findByPk(req.params.id);
-    if (!appointment) {
-      return res.status(404).json({ message: 'Rendez-vous non trouvé' });
-    }
+    const { id } = req.params;
+    const appointment = await Appointment.findByPk(id);
     
+    if (!appointment) {
+      return res.status(404).json({ error: 'Rendez-vous non trouvé' });
+    }
+
     await appointment.destroy();
-    res.json({ message: 'Rendez-vous supprimé avec succès' });
+    res.status(204).send();
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

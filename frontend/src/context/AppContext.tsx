@@ -22,7 +22,8 @@ const testAppointments: Appointment[] = [
     email: 'jean.dupont@example.com',
     telephone: '0123456789',
     notes: 'Premier rendez-vous',
-    profile: 'prospect'
+    profile: 'prospect',
+    status: 'confirmed'
   },
   {
     id: '2',
@@ -33,8 +34,9 @@ const testAppointments: Appointment[] = [
     prenom: 'Sophie',
     email: 'sophie.martin@example.com',
     telephone: '0987654321',
-    notes: 'Suivi projet',
-    profile: 'client'
+    notes: 'Suivi mensuel',
+    profile: 'client',
+    status: 'confirmed'
   },
   {
     id: '3',
@@ -42,11 +44,12 @@ const testAppointments: Appointment[] = [
     duree: 45,
     type: 'telephone',
     nom: 'Bernard',
-    prenom: 'Pierre',
-    email: 'pierre.bernard@example.com',
+    prenom: 'Marie',
+    email: 'marie.bernard@example.com',
     telephone: '0654321987',
-    notes: 'Point mensuel',
-    profile: 'partenaire'
+    notes: 'Point commercial',
+    profile: 'partenaire',
+    status: 'pending'
   }
 ];
 
@@ -70,7 +73,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const updateAppointment = (id: string, updatedAppointment: Appointment) => {
     setAppointments(prev =>
-      prev.map(apt => (apt.id === id ? updatedAppointment : apt))
+      prev.map(apt => (apt.id === id ? { ...apt, ...updatedAppointment } : apt))
     );
   };
 
