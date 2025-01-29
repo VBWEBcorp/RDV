@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { Appointment } from '../types';
 
 interface AppContextType {
@@ -14,7 +14,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 const testAppointments: Appointment[] = [
   {
     id: '1',
-    date: '2025-01-27T10:00:00',
+    date: '2025-01-30T10:00:00',
     duree: 60,
     type: 'physique',
     nom: 'Dupont',
@@ -26,7 +26,7 @@ const testAppointments: Appointment[] = [
   },
   {
     id: '2',
-    date: '2025-01-27T14:30:00',
+    date: '2025-01-30T14:30:00',
     duree: 30,
     type: 'video',
     nom: 'Martin',
@@ -38,13 +38,48 @@ const testAppointments: Appointment[] = [
   },
   {
     id: '3',
-    date: '2025-01-28T09:00:00',
+    date: '2025-01-31T09:00:00',
     duree: 45,
     type: 'telephone',
     nom: 'Bernard',
     prenom: 'Pierre',
     email: 'pierre.bernard@example.com',
     telephone: '0654321987',
+    profile: 'lead'
+  },
+  {
+    id: '4',
+    date: '2025-02-01T11:00:00',
+    duree: 60,
+    type: 'physique',
+    nom: 'Dubois',
+    prenom: 'Marie',
+    email: 'marie.dubois@example.com',
+    telephone: '0678901234',
+    notes: 'Consultation initiale',
+    profile: 'prospect'
+  },
+  {
+    id: '5',
+    date: '2025-02-05T15:00:00',
+    duree: 30,
+    type: 'video',
+    nom: 'Petit',
+    prenom: 'Thomas',
+    email: 'thomas.petit@example.com',
+    telephone: '0612345678',
+    notes: 'Point d\'avancement',
+    profile: 'client'
+  },
+  {
+    id: '6',
+    date: '2025-02-10T10:30:00',
+    duree: 45,
+    type: 'telephone',
+    nom: 'Moreau',
+    prenom: 'Julie',
+    email: 'julie.moreau@example.com',
+    telephone: '0698765432',
     profile: 'lead'
   }
 ];

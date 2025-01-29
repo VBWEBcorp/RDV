@@ -284,7 +284,7 @@ export function Appointments() {
             onEditAppointment={handleSelectEvent}
           />
         ) : (
-          <Stack spacing={2} sx={{ mt: 4 }}>
+          <Stack spacing={4} sx={{ mt: 4 }}>
             {futureAppointments.length === 0 ? (
               <Paper 
                 elevation={0}
@@ -336,7 +336,7 @@ export function Appointments() {
                   </Typography>
                 </Typography>
 
-                <Stack spacing={1}>
+                <Stack spacing={4}>
                   {futureAppointments.map((appointment) => (
                     <Card 
                       key={appointment.id}

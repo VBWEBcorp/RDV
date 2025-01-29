@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "env": {
+    "VITE_API_URL": "https://admin-rdv-backend.vercel.app/api"
+  },
+  "build": {
+    "env": {
+      "VITE_API_URL": "https://admin-rdv-backend.vercel.app/api"
+    }
+  }
+}

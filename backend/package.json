@@ -1,4 +1,12 @@
 {
+  "name": "admin-rdv-backend",
+  "version": "1.0.0",
+  "description": "Backend pour l'application de gestion de rendez-vous",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -6,5 +14,8 @@
     "mongoose": "^8.9.5",
     "node-schedule": "^2.1.1",
     "nodemailer": "^6.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
   }
 }
